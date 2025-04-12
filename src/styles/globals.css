@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -78,11 +80,42 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Adding bg-cyber-purple class */
+/* Explicitly adding cyber-purple background classes */
 .bg-cyber-purple {
   background-color: #b967ff;
 }
 
 .bg-cyber-purple\/80 {
   background-color: rgba(185, 103, 255, 0.8);
+}
+
+.bg-cyber-purple\/20 {
+  background-color: rgba(185, 103, 255, 0.2);
+}
+
+.bg-cyber-purple\/10 {
+  background-color: rgba(185, 103, 255, 0.1);
+}
+
+/* Adding shadow classes for neon effects */
+.shadow-neon-blue {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+}
+
+.shadow-neon-purple {
+  box-shadow: 0 0 15px rgba(185, 103, 255, 0.5);
+}
+
+.shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+}
+
+/* Shimmer text animation */
+@keyframes text-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.animate-text-shimmer {
+  animation: text-shimmer 3s infinite linear;
 }

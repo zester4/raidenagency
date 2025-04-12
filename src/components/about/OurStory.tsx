@@ -6,32 +6,32 @@ const milestones = [
   {
     year: "2019",
     title: "Genesis",
-    description: "Founded with a vision to create autonomous AI agents capable of enterprise-scale problem solving."
+    description: "Founded with a vision to create autonomous AI agents capable of enterprise-scale problem solving. Our founding team of AI researchers and industry veterans established the core technology framework."
   },
   {
     year: "2020",
     title: "First Agent",
-    description: "Launched our prototype autonomous agent for financial data processing, reducing manual tasks by 85%."
+    description: "Launched our prototype autonomous agent for financial data processing, reducing manual tasks by 85%. The success of this implementation led to our first round of significant funding."
   },
   {
     year: "2021",
     title: "Enterprise Adoption",
-    description: "Deployed our first enterprise-scale solution with Fortune 500 companies, proving 24/7 reliability."
+    description: "Deployed our first enterprise-scale solution with Fortune 500 companies, proving 24/7 reliability. This year marked our expansion into multiple industries including finance, healthcare, and manufacturing."
   },
   {
     year: "2022",
     title: "Global Expansion",
-    description: "Opened offices across three continents and expanded our team to over 100 AI specialists."
+    description: "Opened offices across three continents and expanded our team to over 100 AI specialists. Our international presence enabled us to serve global enterprises with local expertise and 24/7 support capabilities."
   },
   {
     year: "2023",
     title: "Multi-Agent Network",
-    description: "Pioneered the first inter-operating multi-agent system capable of complex organizational workflows."
+    description: "Pioneered the first inter-operating multi-agent system capable of complex organizational workflows. This breakthrough technology allowed AI agents to collaborate autonomously on sophisticated enterprise challenges."
   },
   {
     year: "2024",
     title: "Frontier Research",
-    description: "Established our Advanced Intelligence Lab, pushing the boundaries of agent autonomy and collaboration."
+    description: "Established our Advanced Intelligence Lab, pushing the boundaries of agent autonomy and collaboration. Our research partnerships with leading universities have accelerated innovation in AI agent capabilities."
   }
 ];
 
@@ -53,13 +53,14 @@ const OurStory = () => {
         >
           <h2 className="text-3xl md:text-4xl font-heading mb-6">Our Story</h2>
           <p className="text-lg text-white/70 max-w-3xl mx-auto">
-            The journey from concept to creating the future of intelligent agent technology
+            From a visionary concept to creating the future of intelligent agent technology, 
+            our journey has been defined by breakthrough innovation and enterprise impact.
           </p>
         </motion.div>
         
         <div className="relative max-w-4xl mx-auto py-10">
           {/* Vertical line */}
-          <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-electric-blue/30 transform md:-translate-x-1/2 z-0"></div>
+          <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-electric-blue via-cyber-purple to-electric-blue opacity-30 z-0"></div>
           
           {/* Milestones */}
           {milestones.map((milestone, index) => (

@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from "framer-motion";
 import Logo from './Logo';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,11 +53,23 @@ const Navbar = () => {
           <Link to="/services" className="nav-link">Services</Link>
           <Link to="/case-studies" className="nav-link">Case Studies</Link>
           <Link to="/technology" className="nav-link">Technology</Link>
-          <Link to="/about" className="nav-link">About</Link>
-          <Link to="/contact" className="nav-link">Contact</Link>
-          <Link to="/contact" className="cta-button text-sm px-4 py-2">
-            Deploy Your Agent
-          </Link>
+          
+          {user ? (
+            <Link to="/dashboard" className="cta-button text-sm px-4 py-2">
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/auth" className="nav-link flex items-center">
+                <LogIn size={18} className="mr-1" />
+                Sign In
+              </Link>
+              <Link to="/auth?tab=signup" className="cta-button text-sm px-4 py-2 flex items-center">
+                <UserPlus size={18} className="mr-1" />
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -82,11 +96,23 @@ const Navbar = () => {
             <Link to="/services" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Services</Link>
             <Link to="/case-studies" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Case Studies</Link>
             <Link to="/technology" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Technology</Link>
-            <Link to="/about" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>About</Link>
-            <Link to="/contact" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-            <Link to="/contact" className="cta-button text-sm px-4 py-2 text-center mt-4" onClick={() => setIsMenuOpen(false)}>
-              Deploy Your Agent
-            </Link>
+            
+            {user ? (
+              <Link to="/dashboard" className="cta-button text-sm px-4 py-2 text-center" onClick={() => setIsMenuOpen(false)}>
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth" className="nav-link py-2 flex items-center" onClick={() => setIsMenuOpen(false)}>
+                  <LogIn size={18} className="mr-1" />
+                  Sign In
+                </Link>
+                <Link to="/auth?tab=signup" className="cta-button text-sm px-4 py-2 text-center flex items-center justify-center mt-4" onClick={() => setIsMenuOpen(false)}>
+                  <UserPlus size={18} className="mr-1" />
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </motion.div>
       )}
