@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   BrainCircuit, 
   Key, 
@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   Zap,
   Shield,
-  Database
+  Database,
+  Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -110,7 +111,6 @@ export default function ModelSelector() {
       
       setSelectedModelId(modelId);
       
-      // Save preference to database if we had one
       toast({
         title: "Model Selected",
         description: `Your AI model preference has been updated.`,
@@ -129,8 +129,6 @@ export default function ModelSelector() {
     try {
       setIsSubmitting(true);
       
-      // Here we would typically save these securely in a backend
-      // For now, we'll just update our local state
       setApiKeys(tempApiKeys);
       
       toast({
