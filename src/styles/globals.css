@@ -97,19 +97,18 @@
   background-color: rgba(185, 103, 255, 0.1);
 }
 
-/* Adding shadow classes for neon effects */
-.shadow-neon-blue {
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
-}
-
-.shadow-neon-purple {
-  box-shadow: 0 0 15px rgba(185, 103, 255, 0.5);
-}
-
 /* Shadow glass effect for card components */
 @layer components {
   .shadow-glass {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+  }
+  
+  .shadow-neon-blue {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  }
+  
+  .shadow-neon-purple {
+    box-shadow: 0 0 15px rgba(185, 103, 255, 0.5);
   }
 }
 
