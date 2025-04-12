@@ -23,6 +23,7 @@ const config: Config = {
         'raiden-black': '#0a0a0a',
         'electric-blue': '#00f0ff',
         'cyberpunk-purple': '#b967ff',
+        'cyber-purple': '#b967ff', // Added this line to define bg-cyber-purple
         'holographic-teal': '#20e3b2',
         
         sidebar: {
