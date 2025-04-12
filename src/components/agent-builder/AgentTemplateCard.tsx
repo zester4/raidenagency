@@ -21,6 +21,7 @@ interface TemplateProps {
   icon: React.ReactNode;
   category: string;
   popularity: 'high' | 'medium' | 'low';
+  onUse?: (templateId: string) => void;
 }
 
 interface AgentTemplateCardProps {
@@ -28,6 +29,12 @@ interface AgentTemplateCardProps {
 }
 
 export const AgentTemplateCard = ({ template }: AgentTemplateCardProps) => {
+  const handleUseTemplate = () => {
+    if (template.onUse) {
+      template.onUse(template.id);
+    }
+  };
+
   return (
     <Card className="border-gray-800 bg-black/20 backdrop-blur-sm hover:border-electric-blue/50 transition-all">
       <div className="p-6">
@@ -65,7 +72,10 @@ export const AgentTemplateCard = ({ template }: AgentTemplateCardProps) => {
         </Badge>
       </div>
       <CardFooter className="border-t border-gray-800 p-6 pt-4">
-        <Button className="w-full bg-electric-blue hover:bg-electric-blue/90 shadow-neon-blue">
+        <Button 
+          className="w-full bg-electric-blue hover:bg-electric-blue/90 shadow-neon-blue"
+          onClick={handleUseTemplate}
+        >
           Use Template <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
