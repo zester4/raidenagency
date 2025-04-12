@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { 
   ShieldCheck, MessageSquare, BarChart3, BrainCircuit, 
-  Workflow, Star, Server, Robot, Cog, Globe, Cpu, 
+  Workflow, Star, Server, Bot, Cog, Globe, Cpu, 
   Award, Briefcase, Code, Target, Users, Zap, Building 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -138,7 +137,7 @@ const detailedServices = {
     {
       title: "Specialized Agent Development",
       description: "Custom-built AI agents designed specifically for your unique business challenges and opportunities.",
-      icon: Robot,
+      icon: Bot,
       benefits: ["Problem-specific design", "Proprietary algorithms", "Custom interfaces", "Unique capabilities"]
     },
     {
@@ -303,7 +302,7 @@ const Services = () => {
                   <category.icon className={`h-6 w-6 text-${category.color}`} />
                 </div>
                 <h3 className="text-xl font-heading mb-2">{category.title}</h3>
-                <p className="text-white/70 text-sm">{category.description}</p>
+                <p className="text-white/70">{category.description}</p>
               </motion.div>
             ))}
           </div>

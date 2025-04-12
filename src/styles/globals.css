@@ -65,6 +65,11 @@
   box-shadow: 0 0 15px rgba(185, 103, 255, 0.6), 0 0 30px rgba(185, 103, 255, 0.4), 0 0 45px rgba(185, 103, 255, 0.2);
 }
 
+/* Add the missing shadow-glass class */
+.shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+}
+
 /* Circuit pattern background */
 .circuit-bg {
   background-image: url('/circuit-board.svg');
@@ -104,10 +109,6 @@
 
 .shadow-neon-purple {
   box-shadow: 0 0 15px rgba(185, 103, 255, 0.5);
-}
-
-.shadow-glass {
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
 }
 
 /* Shimmer text animation */
