@@ -1,1 +1,11 @@
+
 project_id = "ryujklxvochfkuokgduz"
+
+[functions.process-document]
+verify_jwt = true
+
+[functions.chat-with-agent]
+verify_jwt = true
+
+[functions.agent-tools]
+verify_jwt = true
