@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { 
   Card, 
@@ -17,14 +17,15 @@ import {
   BarChart3, 
   Users, 
   Zap, 
-  Settings as SettingsIcon, 
+  Settings, 
   PlusCircle, 
   ArrowUpRight, 
   BrainCircuit, 
   MessageSquare, 
   Clock, 
   Database,
-  BadgeCheck
+  BadgeCheck,
+  Bot
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import Logo from '@/components/Logo';
@@ -33,6 +34,7 @@ import AgentCard from '@/components/dashboard/AgentCard';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -88,18 +90,17 @@ const Dashboard = () => {
               <BarChart3 className="h-4 w-4" /> Overview
             </TabsTrigger>
             <TabsTrigger value="agents" className="data-[state=active]:bg-electric-blue/10 flex items-center gap-2">
-              <Users className="h-4 w-4" /> My Agents
+              <Bot className="h-4 w-4" /> My Agents
             </TabsTrigger>
             <TabsTrigger value="usage" className="data-[state=active]:bg-electric-blue/10 flex items-center gap-2">
               <Zap className="h-4 w-4" /> Usage
             </TabsTrigger>
             <TabsTrigger value="settings" className="data-[state=active]:bg-electric-blue/10 flex items-center gap-2">
-              <SettingsIcon className="h-4 w-4" /> Settings
+              <Settings className="h-4 w-4" /> Settings
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4 mt-4">
-            {/* Welcome Card */}
             <Card className="border-gray-800 bg-black/20 backdrop-blur-sm overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-cyberpunk-purple/10 rounded-lg"></div>
               <CardHeader className="pb-2 relative z-10">
@@ -117,7 +118,10 @@ const Dashboard = () => {
                     or provide instant customer support.
                   </p>
                 </div>
-                <Button className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90">
+                <Button 
+                  className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90"
+                  onClick={() => navigate('/dashboard/agents')}
+                >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Create Your First Agent
                 </Button>
@@ -128,7 +132,7 @@ const Dashboard = () => {
               <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="h-5 w-5 text-electric-blue" />
+                    <Bot className="h-5 w-5 text-electric-blue" />
                     Active Agents
                   </CardTitle>
                   <CardDescription>Total deployed agents</CardDescription>
@@ -137,8 +141,13 @@ const Dashboard = () => {
                   <div className="text-3xl font-bold">0</div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" size="sm" className="w-full">
-                    Deploy Agent
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => navigate('/dashboard/agents')}
+                  >
+                    Create Agent
                   </Button>
                 </CardFooter>
               </Card>
@@ -208,55 +217,100 @@ const Dashboard = () => {
 
           <TabsContent value="agents" className="space-y-4 mt-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-heading text-white">My AI Agents</h2>
-              <Button className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create Agent
+              <h2 className="text-2xl font-heading text-white">Agent Templates</h2>
+              <Button 
+                className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90"
+                onClick={() => navigate('/dashboard/agents')}
+              >
+                <Bot className="mr-2 h-4 w-4" />
+                View All Agents
               </Button>
             </div>
             
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <AgentCard 
-                type="template"
-                name="Customer Support Agent"
-                description="AI agent that can handle customer inquiries and support tickets."
-                icon={<MessageSquare className="h-6 w-6 text-electric-blue" />}
-              />
+              <Card className="border-gray-800 bg-black/20 backdrop-blur-sm hover:border-electric-blue/50 transition-all">
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2 bg-cyber-purple hover:bg-cyber-purple">Popular</Badge>
+                  <CardTitle>Customer Support</CardTitle>
+                  <CardDescription>
+                    AI agent that handles customer inquiries and support tickets
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Includes routing to specialized support teams</span>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className="w-full bg-electric-blue hover:bg-electric-blue/90"
+                    onClick={() => navigate('/dashboard/agents')}
+                  >
+                    Build Customer Support Agent
+                  </Button>
+                </CardFooter>
+              </Card>
               
-              <AgentCard 
-                type="template"
-                name="Data Analysis Agent"
-                description="Process and extract insights from your business data."
-                icon={<Database className="h-6 w-6 text-holo-teal" />}
-              />
+              <Card className="border-gray-800 bg-black/20 backdrop-blur-sm hover:border-electric-blue/50 transition-all">
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2 bg-slate-600 hover:bg-slate-600">New</Badge>
+                  <CardTitle>Knowledge Base</CardTitle>
+                  <CardDescription>
+                    Connect to your company documents and answer questions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <Database className="h-4 w-4" />
+                    <span>Includes vector search for relevant information</span>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className="w-full bg-electric-blue hover:bg-electric-blue/90"
+                    onClick={() => navigate('/dashboard/agents')}
+                  >
+                    Build Knowledge Base Agent
+                  </Button>
+                </CardFooter>
+              </Card>
               
-              <AgentCard 
-                type="template"
-                name="Marketing Assistant"
-                description="Generate content and analyze marketing campaign performance."
-                icon={<ArrowUpRight className="h-6 w-6 text-cyber-purple" />}
-              />
+              <Card className="border-gray-800 bg-black/20 backdrop-blur-sm hover:border-electric-blue/50 transition-all">
+                <CardHeader className="pb-2">
+                  <Badge className="w-fit mb-2 bg-cyan-600 hover:bg-cyan-600">Advanced</Badge>
+                  <CardTitle>Data Analyst</CardTitle>
+                  <CardDescription>
+                    Process and analyze data to extract valuable insights
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <BarChart3 className="h-4 w-4" />
+                    <span>Includes data processing and visualization tools</span>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className="w-full bg-electric-blue hover:bg-electric-blue/90"
+                    onClick={() => navigate('/dashboard/agents')}
+                  >
+                    Build Data Analyst Agent
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
             
-            <Card className="border-gray-800 bg-black/20 backdrop-blur-sm mt-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-electric-blue" />
-                  Agent History
-                </CardTitle>
-                <CardDescription>
-                  Previously created and deployed agents
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  You haven't deployed any agents yet
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full bg-electric-blue hover:bg-electric-blue/90">Create Your First Agent</Button>
-              </CardFooter>
-            </Card>
+            <div className="mt-6 flex justify-center">
+              <Button 
+                variant="outline" 
+                className="border-gray-700"
+                onClick={() => navigate('/dashboard/agents')}
+              >
+                View All Templates
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="usage" className="space-y-4 mt-4">
@@ -343,7 +397,7 @@ const Dashboard = () => {
             <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <SettingsIcon className="h-5 w-5 text-electric-blue" />
+                  <Settings className="h-5 w-5 text-electric-blue" />
                   Quick Settings
                 </CardTitle>
                 <CardDescription>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Sidebar, 
@@ -26,7 +26,8 @@ import {
   LogOut,
   Search,
   Menu,
-  X
+  X,
+  BrainCircuit
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,7 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -112,7 +114,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     onClick={() => navigate('/dashboard/agents')}
                     tooltip="Agents"
                   >
-                    <Server className="mr-2 h-4 w-4 text-cyberpunk-purple" /> Agents
+                    <BrainCircuit className="mr-2 h-4 w-4 text-cyberpunk-purple" /> Agents
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 
@@ -220,7 +222,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   setIsMobileMenuOpen(false);
                 }}
               >
-                <Server className="mr-2 h-5 w-5 text-cyberpunk-purple" /> Agents
+                <BrainCircuit className="mr-2 h-5 w-5 text-cyberpunk-purple" /> Agents
               </Button>
               
               <Button

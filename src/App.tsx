@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Settings from "./pages/dashboard/Settings";
+import AgentBuilder from "./pages/dashboard/AgentBuilder";
 
 // We'll create placeholder pages for now
 import Services from "./pages/Services";
@@ -54,6 +55,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard/agents" 
+              element={
+                <ProtectedRoute>
+                  <AgentBuilder />
                 </ProtectedRoute>
               } 
             />
