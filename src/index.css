@@ -72,6 +72,11 @@
 }
 
 @layer components {
+  /* Shadow glass effect for card components */
+  .shadow-glass {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+  }
+  
   .glass-panel {
     @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl;
   }
@@ -80,6 +85,7 @@
     @apply glass-panel shadow-glass hover:border-electric-blue/50 transition-all duration-300;
   }
   
+  /* ... keep existing code for the rest of the component classes */
   .neon-border {
     @apply relative;
   }
@@ -213,6 +219,7 @@
 }
 
 @layer utilities {
+  /* ... keep existing code for utility classes */
   .cyber-text-glow {
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
   }
