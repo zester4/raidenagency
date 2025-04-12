@@ -1,19 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { Menu, X, Layers, ChevronDown } from 'lucide-react';
+import { motion } from "framer-motion";
 import Logo from './Logo';
+import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
       }
     };
 
@@ -21,91 +22,73 @@ const Navbar = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [scrolled]);
+  }, []);
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Services', path: '/services' },
-    { name: 'Case Studies', path: '/case-studies' },
-    { name: 'Technology', path: '/technology' },
-    { name: 'About', path: '/about' },
-    { name: 'Contact', path: '/contact' },
-  ];
+  const navbarClass = isScrolled
+    ? 'bg-raiden-black/80 shadow-lg backdrop-blur-md py-3'
+    : 'bg-transparent py-5';
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <nav
-      className={cn(
-        'fixed w-full z-50 transition-all duration-300',
-        scrolled
-          ? 'glass-panel py-2 shadow-glass border-b border-white/10'
-          : 'bg-transparent py-4'
-      )}
+    <motion.nav
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarClass}`}
     >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <Logo />
-            <span className="font-heading text-xl font-bold text-white">
-              Raiden<span className="text-electric-blue">Agents</span>
-            </span>
+      <div className="container mx-auto px-6 flex justify-between items-center">
+        <Link to="/" className="flex items-center">
+          <Logo className="h-10 w-auto text-white" />
+          <span className="ml-3 text-xl font-heading text-white">Raiden Agents</span>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-8">
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/services" className="nav-link">Services</Link>
+          <Link to="/case-studies" className="nav-link">Case Studies</Link>
+          <Link to="/technology" className="nav-link">Technology</Link>
+          <Link to="/about" className="nav-link">About</Link>
+          <Link to="/contact" className="cta-button text-sm px-4 py-2">
+            Deploy Your Agent
           </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link key={link.name} to={link.path} className="nav-link">
-                {link.name}
-              </Link>
-            ))}
-          </div>
-
-          {/* CTA Button - Desktop */}
-          <div className="hidden md:block">
-            <Link to="/contact" className="cta-button">
-              Deploy Your First Agent
-            </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden focus:outline-none"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? (
-              <X className="h-6 w-6 text-electric-blue" />
-            ) : (
-              <Menu className="h-6 w-6 text-electric-blue" />
-            )}
-          </button>
         </div>
 
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden glass-panel mt-4 p-4 rounded-lg border border-white/10 animate-fade-in-up">
-            <div className="flex flex-col space-y-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className="nav-link p-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <Link
-                to="/contact"
-                className="cta-button text-center mt-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Deploy Your First Agent
-              </Link>
-            </div>
-          </div>
-        )}
+        {/* Mobile Menu Button */}
+        <button 
+          className="md:hidden text-white"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
-    </nav>
+
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="md:hidden bg-raiden-black/90 backdrop-blur-lg"
+        >
+          <div className="container mx-auto px-6 py-4 flex flex-col space-y-4">
+            <Link to="/" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Home</Link>
+            <Link to="/services" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Services</Link>
+            <Link to="/case-studies" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Case Studies</Link>
+            <Link to="/technology" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Technology</Link>
+            <Link to="/about" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>About</Link>
+            <Link to="/contact" className="cta-button text-sm px-4 py-2 text-center mt-4" onClick={() => setIsMenuOpen(false)}>
+              Deploy Your Agent
+            </Link>
+          </div>
+        </motion.div>
+      )}
+    </motion.nav>
   );
 };
 
