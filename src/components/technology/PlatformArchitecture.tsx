@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Server, Brain, MessageSquare, ApiIcon, ShieldCheck } from 'lucide-react';
+import { Server, Brain, MessageSquare, Network, ShieldCheck } from 'lucide-react';
 
 interface LayerComponent {
   id: string;
@@ -114,7 +113,7 @@ const techLayers: TechLayer[] = [
   {
     id: 'integration',
     title: 'Integration Layer',
-    icon: ApiIcon,
+    icon: Network,
     color: 'from-electric-blue/20 to-transparent',
     description: 'Seamless connections to enterprise systems through standardized APIs and custom connectors.',
     components: [
