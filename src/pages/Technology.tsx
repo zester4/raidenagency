@@ -2,19 +2,32 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import TechHero from '@/components/technology/TechHero';
+import PlatformArchitecture from '@/components/technology/PlatformArchitecture';
+import SecurityCompliance from '@/components/technology/SecurityCompliance';
+import AiEthics from '@/components/technology/AiEthics';
+import TechnologyShowcase from '@/components/TechnologyShowcase';
 
 const Technology = () => {
   return (
     <div className="min-h-screen bg-raiden-black text-white overflow-x-hidden">
       <Navbar />
-      <div className="container mx-auto px-6 py-32">
-        <h1 className="text-4xl md:text-5xl font-heading font-bold mb-6 cyber-text-glow shimmer-text">
-          Our Technology
-        </h1>
-        <p className="text-xl text-white/80">
-          This page is under development. Check back soon to learn about our advanced AI technology stack.
-        </p>
-      </div>
+      
+      {/* Hero Section */}
+      <TechHero />
+      
+      {/* Platform Architecture */}
+      <PlatformArchitecture />
+      
+      {/* Security & Compliance */}
+      <SecurityCompliance />
+      
+      {/* AI Ethics Framework */}
+      <AiEthics />
+      
+      {/* Technology Showcase - reusing existing component */}
+      <TechnologyShowcase />
+      
       <Footer />
     </div>
   );

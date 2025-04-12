@@ -41,7 +41,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="flex items-center">
-          <Logo className="h-10 w-auto text-white" />
+          <Logo />
           <span className="ml-3 text-xl font-heading text-white">Raiden Agents</span>
         </Link>
 
@@ -52,6 +52,7 @@ const Navbar = () => {
           <Link to="/case-studies" className="nav-link">Case Studies</Link>
           <Link to="/technology" className="nav-link">Technology</Link>
           <Link to="/about" className="nav-link">About</Link>
+          <Link to="/contact" className="nav-link">Contact</Link>
           <Link to="/contact" className="cta-button text-sm px-4 py-2">
             Deploy Your Agent
           </Link>
@@ -82,6 +83,7 @@ const Navbar = () => {
             <Link to="/case-studies" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Case Studies</Link>
             <Link to="/technology" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Technology</Link>
             <Link to="/about" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>About</Link>
+            <Link to="/contact" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Contact</Link>
             <Link to="/contact" className="cta-button text-sm px-4 py-2 text-center mt-4" onClick={() => setIsMenuOpen(false)}>
               Deploy Your Agent
             </Link>
