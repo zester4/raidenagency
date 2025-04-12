@@ -1,6 +1,7 @@
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.1";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,8 +32,8 @@ serve(async (req) => {
   }
 
   // Create Supabase client
-  const url = Deno.env.get('SUPABASE_URL') || '';
-  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+  const url = Deno.env.get('SUPABASE_URL') || "https://ryujklxvochfkuokgduz.supabase.co";
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || "";
   const supabase = createClient(url, key);
 
   // Get authorization header
@@ -81,70 +82,50 @@ serve(async (req) => {
             search_engine: {
               type: 'string',
               description: 'Search engine to use',
-              default: 'google',
-              enum: ['google', 'bing', 'duckduckgo']
+              enum: ['google', 'bing', 'duckduckgo'],
+              default: 'google'
             },
             max_results: {
               type: 'number',
-              description: 'Maximum number of search results to return',
+              description: 'Maximum number of results to return',
               default: 5
             }
-          }
+          },
+          required: ['search_engine']
         }
       },
       {
-        id: 'database-query',
-        name: 'Database Query',
-        description: 'Query SQL databases to retrieve or manipulate data',
-        icon: 'database',
+        id: 'weather',
+        name: 'Weather',
+        description: 'Get current weather and forecasts',
+        icon: 'cloud',
         config_schema: {
           type: 'object',
           properties: {
-            connection_string: {
+            api_key: {
               type: 'string',
-              description: 'Database connection string (will be stored securely)'
+              description: 'API key for weather service'
             },
-            database_type: {
+            units: {
               type: 'string',
-              description: 'Type of database',
-              enum: ['postgres', 'mysql', 'mongodb', 'sqlite']
+              enum: ['metric', 'imperial'],
+              default: 'metric'
             }
           },
-          required: ['connection_string', 'database_type']
+          required: ['api_key']
         }
       },
       {
-        id: 'code-interpreter',
-        name: 'Code Interpreter',
-        description: 'Run code snippets in a sandbox environment',
-        icon: 'code',
-        config_schema: {
-          type: 'object',
-          properties: {
-            languages: {
-              type: 'string',
-              description: 'Allowed programming languages',
-              enum: ['python', 'javascript', 'r', 'all']
-            },
-            timeout_seconds: {
-              type: 'number',
-              description: 'Maximum execution time in seconds',
-              default: 30
-            }
-          }
-        }
-      },
-      {
-        id: 'email-sender',
-        name: 'Email Sender',
-        description: 'Send emails on behalf of the user (with approval)',
+        id: 'email',
+        name: 'Email',
+        description: 'Send emails',
         icon: 'mail',
         config_schema: {
           type: 'object',
           properties: {
             smtp_server: {
               type: 'string',
-              description: 'SMTP server to use'
+              description: 'SMTP server address'
             },
             smtp_port: {
               type: 'number',
@@ -157,280 +138,284 @@ serve(async (req) => {
             },
             smtp_password: {
               type: 'string',
-              description: 'SMTP password (will be stored securely)'
+              description: 'SMTP password'
             },
             from_email: {
               type: 'string',
-              description: 'From email address'
-            },
-            require_approval: {
-              type: 'boolean',
-              description: 'Require user approval before sending emails',
-              default: true
+              description: 'Default sender email address'
             }
           },
           required: ['smtp_server', 'smtp_username', 'smtp_password', 'from_email']
         }
       },
       {
-        id: 'calendar-assistant',
-        name: 'Calendar Assistant',
-        description: 'Access and manage calendar events',
+        id: 'calendar',
+        name: 'Calendar',
+        description: 'Manage calendar events',
         icon: 'calendar',
         config_schema: {
           type: 'object',
           properties: {
-            calendar_provider: {
+            calendar_type: {
               type: 'string',
-              description: 'Calendar provider',
-              enum: ['google', 'outlook', 'apple']
+              enum: ['google', 'outlook', 'ical'],
+              default: 'google'
             },
             api_key: {
               type: 'string',
-              description: 'API key or OAuth token (will be stored securely)'
+              description: 'API key or OAuth token'
             },
             calendar_id: {
               type: 'string',
-              description: 'ID of the calendar to access',
-              default: 'primary'
+              description: 'ID of the calendar to use'
             }
           },
-          required: ['calendar_provider', 'api_key']
-        }
-      },
-      {
-        id: 'file-processor',
-        name: 'File Processor',
-        description: 'Process and analyze files (PDFs, Excel, images, etc.)',
-        icon: 'file',
-        config_schema: {
-          type: 'object',
-          properties: {
-            allowed_file_types: {
-              type: 'string',
-              description: 'Allowed file types (comma-separated)',
-              default: 'pdf,xlsx,docx,csv,jpg,png'
-            },
-            max_file_size_mb: {
-              type: 'number',
-              description: 'Maximum file size in MB',
-              default: 10
-            }
-          }
-        }
-      },
-      {
-        id: 'identity-verification',
-        name: 'Identity Verification',
-        description: 'Verify user identities through various providers',
-        icon: 'user-check',
-        config_schema: {
-          type: 'object',
-          properties: {
-            provider: {
-              type: 'string',
-              description: 'Identity verification provider',
-              enum: ['auth0', 'okta', 'jumpcloud', 'custom']
-            },
-            api_key: {
-              type: 'string',
-              description: 'API key (will be stored securely)'
-            },
-            verification_level: {
-              type: 'string',
-              description: 'Level of verification required',
-              enum: ['basic', 'medium', 'high'],
-              default: 'medium'
-            }
-          },
-          required: ['provider', 'api_key']
-        }
-      },
-      {
-        id: 'weather-service',
-        name: 'Weather Service',
-        description: 'Get current weather and forecasts for any location',
-        icon: 'globe',
-        config_schema: {
-          type: 'object',
-          properties: {
-            provider: {
-              type: 'string',
-              description: 'Weather data provider',
-              enum: ['openweathermap', 'weatherapi', 'accuweather'],
-              default: 'openweathermap'
-            },
-            api_key: {
-              type: 'string',
-              description: 'API key (will be stored securely)'
-            },
-            units: {
-              type: 'string',
-              description: 'Units of measurement',
-              enum: ['metric', 'imperial'],
-              default: 'metric'
-            }
-          },
-          required: ['api_key']
+          required: ['calendar_type', 'api_key']
         }
       }
     ];
 
-    return new Response(JSON.stringify(availableTools), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify(availableTools),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } else if (path.length === 2 && path[0] === 'agent') {
-    // GET /agent/:agentId - List tools for agent
-    // POST /agent/:agentId - Add tool to agent
     const agentId = path[1];
-
-    // Check if agent exists and belongs to user
-    const { data: agent, error: agentError } = await supabase
-      .from('user_agents')
-      .select('*')
-      .eq('id', agentId)
-      .eq('user_id', user.id)
-      .single();
-
-    if (agentError || !agent) {
-      return new Response(JSON.stringify({ error: 'Agent not found or not authorized' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
+    
     if (req.method === 'GET') {
-      // Get tools for the agent
-      const { data: tools, error: toolsError } = await supabase
-        .from('agent_tools')
-        .select('*')
-        .eq('agent_id', agentId);
-
-      if (toolsError) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch tools' }), {
+      // GET /agent/:id - Get all tools for an agent
+      try {
+        // Check if user has access to this agent
+        const { data: agent, error: agentError } = await supabase
+          .from('user_agents')
+          .select('*')
+          .eq('id', agentId)
+          .eq('user_id', user.id)
+          .single();
+          
+        if (agentError || !agent) {
+          return new Response(JSON.stringify({ error: 'Agent not found or you do not have access' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Get all tools for this agent
+        const { data: tools, error } = await supabase
+          .from('agent_tools')
+          .select('*')
+          .eq('agent_id', agentId);
+          
+        if (error) {
+          return new Response(JSON.stringify({ error: 'Failed to fetch tools' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        return new Response(
+          JSON.stringify(tools || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-
-      return new Response(JSON.stringify(tools || []), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     } else if (req.method === 'POST') {
-      // Add tool to agent
-      const body = await req.json();
-      
-      // Validate request body
-      if (!body.name || !body.tool_type) {
-        return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      // Insert tool
-      const { data: newTool, error: insertError } = await supabase
-        .from('agent_tools')
-        .insert({
-          agent_id: agentId,
-          name: body.name,
-          description: body.description || null,
-          tool_type: body.tool_type,
-          config: body.config || null
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        return new Response(JSON.stringify({ error: 'Failed to add tool' }), {
+      // POST /agent/:id - Add a new tool to an agent
+      try {
+        // Parse request body
+        const requestData = await req.json();
+        const { name, description, tool_type, config } = requestData;
+        
+        if (!name || !tool_type) {
+          return new Response(JSON.stringify({ error: 'Name and tool_type are required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Check if user has access to this agent
+        const { data: agent, error: agentError } = await supabase
+          .from('user_agents')
+          .select('*')
+          .eq('id', agentId)
+          .eq('user_id', user.id)
+          .single();
+          
+        if (agentError || !agent) {
+          return new Response(JSON.stringify({ error: 'Agent not found or you do not have access' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Create new tool
+        const { data: newTool, error } = await supabase
+          .from('agent_tools')
+          .insert({
+            agent_id: agentId,
+            name,
+            description: description || '',
+            tool_type,
+            config: config || {}
+          })
+          .select()
+          .single();
+          
+        if (error) {
+          return new Response(JSON.stringify({ error: 'Failed to create tool' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        return new Response(
+          JSON.stringify(newTool),
+          { 
+            status: 201,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-
-      return new Response(JSON.stringify(newTool), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     } else {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-  } else if (path.length === 1 && path[0].includes('-')) {
-    // Single tool operations - GET, PATCH, DELETE /agent-tools/:toolId
-    const toolId = path[0];
-
-    // Get the tool
-    const { data: tool, error: toolError } = await supabase
-      .from('agent_tools')
-      .select('*, user_agents!inner(*)')
-      .eq('id', toolId)
-      .single();
-
-    if (toolError || !tool) {
-      return new Response(JSON.stringify({ error: 'Tool not found' }), {
-        status: 404,
+  } else if (path.length === 1 && path[0] === 'tool') {
+    const toolId = url_parts.searchParams.get('id');
+    
+    if (!toolId) {
+      return new Response(JSON.stringify({ error: 'Tool ID is required' }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    // Check if user has access to the tool (via agent)
-    if (tool.user_agents.user_id !== user.id) {
-      return new Response(JSON.stringify({ error: 'Not authorized to access this tool' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (req.method === 'GET') {
-      // Return the tool (without the user_agents join)
-      const { user_agents, ...toolData } = tool;
-      return new Response(JSON.stringify(toolData), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    
+    if (req.method === 'DELETE') {
+      // DELETE /tool?id=:id - Delete a tool
+      try {
+        // Get the tool first to check ownership
+        const { data: tool, error: getError } = await supabase
+          .from('agent_tools')
+          .select('*, user_agents!inner(*)')
+          .eq('id', toolId)
+          .single();
+          
+        if (getError || !tool) {
+          return new Response(JSON.stringify({ error: 'Tool not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Check if the user owns the agent this tool belongs to
+        if (tool.user_agents.user_id !== user.id) {
+          return new Response(JSON.stringify({ error: 'You do not have permission to delete this tool' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Delete the tool
+        const { error: deleteError } = await supabase
+          .from('agent_tools')
+          .delete()
+          .eq('id', toolId);
+          
+        if (deleteError) {
+          return new Response(JSON.stringify({ error: 'Failed to delete tool' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        return new Response(
+          JSON.stringify({ success: true, message: 'Tool deleted successfully' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     } else if (req.method === 'PATCH') {
-      // Update the tool
-      const body = await req.json();
-      
-      const { data: updatedTool, error: updateError } = await supabase
-        .from('agent_tools')
-        .update({
-          name: body.name !== undefined ? body.name : tool.name,
-          description: body.description !== undefined ? body.description : tool.description,
-          config: body.config !== undefined ? body.config : tool.config
-        })
-        .eq('id', toolId)
-        .select()
-        .single();
-
-      if (updateError) {
-        return new Response(JSON.stringify({ error: 'Failed to update tool' }), {
+      // PATCH /tool?id=:id - Update a tool
+      try {
+        // Parse request body
+        const requestData = await req.json();
+        const { name, description, config } = requestData;
+        
+        if (!Object.keys(requestData).length) {
+          return new Response(JSON.stringify({ error: 'No updates provided' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Get the tool first to check ownership
+        const { data: tool, error: getError } = await supabase
+          .from('agent_tools')
+          .select('*, user_agents!inner(*)')
+          .eq('id', toolId)
+          .single();
+          
+        if (getError || !tool) {
+          return new Response(JSON.stringify({ error: 'Tool not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Check if the user owns the agent this tool belongs to
+        if (tool.user_agents.user_id !== user.id) {
+          return new Response(JSON.stringify({ error: 'You do not have permission to update this tool' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Build update object (only include fields that were provided)
+        const updates: Record<string, any> = {};
+        if (name !== undefined) updates.name = name;
+        if (description !== undefined) updates.description = description;
+        if (config !== undefined) updates.config = config;
+        
+        // Update the tool
+        const { data: updatedTool, error: updateError } = await supabase
+          .from('agent_tools')
+          .update(updates)
+          .eq('id', toolId)
+          .select()
+          .single();
+          
+        if (updateError) {
+          return new Response(JSON.stringify({ error: 'Failed to update tool' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        return new Response(
+          JSON.stringify(updatedTool),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-
-      return new Response(JSON.stringify(updatedTool), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } else if (req.method === 'DELETE') {
-      // Delete the tool
-      const { error: deleteError } = await supabase
-        .from('agent_tools')
-        .delete()
-        .eq('id', toolId);
-
-      if (deleteError) {
-        return new Response(JSON.stringify({ error: 'Failed to delete tool' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
     } else {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,

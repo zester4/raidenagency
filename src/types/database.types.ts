@@ -17,7 +17,7 @@ export interface Database {
           name: string
           description: string
           category: string
-          popularity: string
+          popularity: 'high' | 'medium' | 'low'
           icon: string
           system_prompt: string
           config: Json | null
@@ -27,7 +27,7 @@ export interface Database {
           name: string
           description: string
           category: string
-          popularity: string
+          popularity: 'high' | 'medium' | 'low'
           icon: string
           system_prompt: string
           config?: Json | null
@@ -37,7 +37,7 @@ export interface Database {
           name?: string
           description?: string
           category?: string
-          popularity?: string
+          popularity?: 'high' | 'medium' | 'low'
           icon?: string
           system_prompt?: string
           config?: Json | null
@@ -50,7 +50,7 @@ export interface Database {
           name: string
           description: string | null
           category: string | null
-          status: string
+          status: 'online' | 'offline' | 'error'
           icon: string | null
           system_prompt: string | null
           config: Json | null
@@ -64,7 +64,7 @@ export interface Database {
           name: string
           description?: string | null
           category?: string | null
-          status: string
+          status: 'online' | 'offline' | 'error'
           icon?: string | null
           system_prompt?: string | null
           config?: Json | null
@@ -78,7 +78,7 @@ export interface Database {
           name?: string
           description?: string | null
           category?: string | null
-          status?: string
+          status?: 'online' | 'offline' | 'error'
           icon?: string | null
           system_prompt?: string | null
           config?: Json | null
@@ -198,6 +198,32 @@ export interface Database {
           storage_path?: string
           processed?: boolean
           metadata?: Json | null
+        }
+      }
+      agent_conversations: {
+        Row: {
+          id: string
+          agent_id: string
+          conversation_id: string
+          user_message: string
+          agent_response: string
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          agent_id: string
+          conversation_id: string
+          user_message: string
+          agent_response: string
+          timestamp: string
+        }
+        Update: {
+          id?: string
+          agent_id?: string
+          conversation_id?: string
+          user_message?: string
+          agent_response?: string
+          timestamp?: string
         }
       }
       user_subscriptions: {
