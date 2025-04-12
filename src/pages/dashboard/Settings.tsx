@@ -22,7 +22,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import {
   User,
-  Settings,
+  Settings as SettingsIcon,
   Bell,
   Shield,
   CreditCard,
@@ -210,7 +210,7 @@ const Settings = () => {
       <div className="p-4 md:p-8">
         <header className="mb-8">
           <h1 className="text-3xl font-heading text-white flex items-center gap-3">
-            <Settings className="h-8 w-8 text-electric-blue" />
+            <SettingsIcon className="h-8 w-8 text-electric-blue" />
             Settings
           </h1>
           <p className="text-muted-foreground">Manage your account and preferences</p>
