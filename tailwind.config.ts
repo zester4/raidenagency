@@ -92,13 +92,18 @@ const config = {
         "pulse": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" }
+        },
+        "text-shimmer": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "100% 50%" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in-up": "fade-in-up 0.5s ease-out forwards",
-        "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+        "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "text-shimmer": "text-shimmer 3s infinite linear"
       },
     },
   },

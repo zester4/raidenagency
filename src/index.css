@@ -226,6 +226,16 @@
 }
 
 @layer utilities {
+  /* Shimmer text animation */
+  @keyframes text-shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  .animate-text-shimmer {
+    animation: text-shimmer 3s infinite linear;
+  }
+  
   .cyber-text-glow {
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
   }
