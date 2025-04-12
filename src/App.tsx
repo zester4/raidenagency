@@ -8,6 +8,7 @@ import Auth from './pages/Auth';
 import Dashboard from './pages/dashboard/Dashboard';
 import AgentBuilder from './pages/dashboard/AgentBuilder';
 import Settings from './pages/dashboard/Settings';
+import Tools from './pages/dashboard/Tools';
 import DashboardPricing from './pages/dashboard/Pricing';
 import Services from './pages/Services';
 import CaseStudies from './pages/CaseStudies';
@@ -39,6 +40,7 @@ function App() {
           {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/agents" element={<ProtectedRoute><AgentBuilder /></ProtectedRoute>} />
+          <Route path="/dashboard/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
           <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/dashboard/pricing" element={<ProtectedRoute><DashboardPricing /></ProtectedRoute>} />
           

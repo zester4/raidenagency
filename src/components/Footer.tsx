@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
@@ -17,7 +16,7 @@ const Footer = () => {
             <Link to="/" className="flex items-center space-x-2 mb-6">
               <Logo />
               <span className="font-heading text-xl font-bold text-white">
-                Raiden<span className="text-electric-blue">Agents</span>
+                Raiden
               </span>
             </Link>
             <p className="text-white/60 mb-6">
@@ -139,7 +138,7 @@ const Footer = () => {
         
         <div className="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <div className="text-white/40 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Raiden Agents. All rights reserved.
+            © {new Date().getFullYear()} Raiden. All rights reserved.
           </div>
           <div className="flex space-x-6 text-sm">
             <Link to="/privacy" className="text-white/40 hover:text-white transition-colors duration-300">

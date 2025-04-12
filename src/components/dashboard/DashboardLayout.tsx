@@ -27,7 +27,8 @@ import {
   Search,
   Menu,
   X,
-  BrainCircuit
+  BrainCircuit,
+  Wrench
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -115,6 +116,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     tooltip="Agents"
                   >
                     <BrainCircuit className="mr-2 h-4 w-4 text-cyberpunk-purple" /> Agents
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === '/dashboard/tools'}
+                    onClick={() => navigate('/dashboard/tools')}
+                    tooltip="Tools"
+                  >
+                    <Wrench className="mr-2 h-4 w-4 text-holographic-teal" /> Tools
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 
@@ -223,6 +234,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 }}
               >
                 <BrainCircuit className="mr-2 h-5 w-5 text-cyberpunk-purple" /> Agents
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-left"
+                onClick={() => {
+                  navigate('/dashboard/tools');
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                <Wrench className="mr-2 h-5 w-5 text-holographic-teal" /> Tools
               </Button>
               
               <Button

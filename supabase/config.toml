@@ -1,1 +1,38 @@
+
 project_id = "ryujklxvochfkuokgduz"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
+
+[inbucket]
+port = 54324
+
+[auth]
+enabled = true
+port = 54325
+
+[storage]
+enabled = true
+
+[realtime]
+enabled = true
+
+[functions.agent-orchestrator]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.chat-with-agent]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.process-document]
+verify_jwt = true
+import_map = "./import_map.json"
