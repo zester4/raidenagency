@@ -51,7 +51,7 @@ const Team = () => {
           name: 'Alex Chen',
           role: 'CEO & Founder',
           imageSrc: 'https://randomuser.me/api/portraits/men/32.jpg',
-          bio: 'Former AI researcher at DeepMind with a passion for creating intelligent systems that augment human capabilities. Founded Raiden Agents to bring enterprise-grade AI agents to businesses of all sizes.',
+          bio: "Former AI researcher at DeepMind with a passion for creating intelligent systems that augment human capabilities. Founded Raiden Agents to bring enterprise-grade AI agents to businesses of all sizes.",
           social: {
             linkedin: '#',
             twitter: '#',
@@ -64,7 +64,7 @@ const Team = () => {
           name: 'Sarah Johnson',
           role: 'COO',
           imageSrc: 'https://randomuser.me/api/portraits/women/44.jpg',
-          bio: 'Operations expert with 15+ years experience scaling technology companies. Previously led operations at several successful AI startups before joining Raiden to build the infrastructure for the next generation of AI agents.',
+          bio: "Operations expert with 15+ years experience scaling technology companies. Previously led operations at several successful AI startups before joining Raiden to build the infrastructure for the next generation of AI agents.",
           social: {
             linkedin: '#',
             twitter: '#',
@@ -107,7 +107,7 @@ const Team = () => {
           name: 'Aisha Patel',
           role: 'Senior Engineer, NLP',
           imageSrc: 'https://randomuser.me/api/portraits/women/66.jpg',
-          bio: 'Natural Language Processing expert with a focus on contextual understanding and semantic analysis. Leads the development of Raiden's language processing capabilities.',
+          bio: "Natural Language Processing expert with a focus on contextual understanding and semantic analysis. Leads the development of Raiden's language processing capabilities.",
           social: {
             github: '#',
             linkedin: '#',
@@ -119,7 +119,7 @@ const Team = () => {
           name: 'David Kim',
           role: 'Frontend Lead',
           imageSrc: 'https://randomuser.me/api/portraits/men/51.jpg',
-          bio: 'User experience specialist focused on creating intuitive interfaces for complex AI systems. Leads the development of Raiden's agent builder interface.',
+          bio: "User experience specialist focused on creating intuitive interfaces for complex AI systems. Leads the development of Raiden's agent builder interface.",
           social: {
             github: '#',
             linkedin: '#'
@@ -137,7 +137,7 @@ const Team = () => {
           name: 'Dr. Elena Schmidt',
           role: 'Head of AI Research',
           imageSrc: 'https://randomuser.me/api/portraits/women/33.jpg',
-          bio: 'PhD in Computer Science specializing in multi-agent systems and reinforcement learning. Leads Raiden's research into next-generation agent capabilities.',
+          bio: "PhD in Computer Science specializing in multi-agent systems and reinforcement learning. Leads Raiden's research into next-generation agent capabilities.",
           social: {
             linkedin: '#',
             github: '#'
