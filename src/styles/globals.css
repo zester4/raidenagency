@@ -1,0 +1,79 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom color variables for the cyberpunk theme */
+:root {
+  --raiden-black: #0a0a0a;
+  --electric-blue: #00f0ff;
+  --cyberpunk-purple: #b967ff;
+  --holographic-teal: #20e3b2;
+  
+  /* Sidebar theme colors */
+  --sidebar: 0 0% 5%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-border: 215 27.9% 16.9%;
+  --sidebar-accent: 217.2 32.6% 17.5%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-ring: 0 0% 60%;
+}
+
+@layer base {
+  body {
+    @apply bg-raiden-black text-white;
+  }
+}
+
+/* Cyberpunk-themed scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.5);
+}
+
+/* Animated neon glow effects */
+.neon-glow {
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3), 0 0 30px rgba(0, 240, 255, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.neon-glow:hover {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.6), 0 0 30px rgba(0, 240, 255, 0.4), 0 0 45px rgba(0, 240, 255, 0.2);
+}
+
+.purple-glow {
+  box-shadow: 0 0 10px rgba(185, 103, 255, 0.5), 0 0 20px rgba(185, 103, 255, 0.3), 0 0 30px rgba(185, 103, 255, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.purple-glow:hover {
+  box-shadow: 0 0 15px rgba(185, 103, 255, 0.6), 0 0 30px rgba(185, 103, 255, 0.4), 0 0 45px rgba(185, 103, 255, 0.2);
+}
+
+/* Circuit pattern background */
+.circuit-bg {
+  background-image: url('/circuit-board.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
