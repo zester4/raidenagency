@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -154,6 +155,27 @@ const AgentBuilder = () => {
     }
   };
 
+  // Define the handler functions that were missing
+  const handleEditAgent = (agentId: string) => {
+    // Implementation for editing an agent
+    console.log(`Editing agent with ID: ${agentId}`);
+  };
+
+  const handleDeleteAgent = (agentId: string) => {
+    // Call the deleteAgent function from useAgents
+    deleteAgent(agentId);
+  };
+
+  const handleToggleAgentStatus = (agentId: string, currentStatus: 'online' | 'offline' | 'error') => {
+    // Call the toggleAgentStatus function from useAgents
+    toggleAgentStatus(agentId, currentStatus);
+  };
+
+  const handleDeployAgent = (agentId: string) => {
+    // Implementation for deploying an agent
+    console.log(`Deploying agent with ID: ${agentId}`);
+  };
+
   if (error) {
     return (
       <DashboardLayout>
@@ -228,7 +250,7 @@ const AgentBuilder = () => {
             >
               Back to Agents
             </Button>
-            <AgentCreator onCreateAgent={handleCreateAgent} />
+            <AgentCreator onCreateAgent={createAgent} />
           </div>
         ) : showWorkflowComposer ? (
           <div className="mb-6">

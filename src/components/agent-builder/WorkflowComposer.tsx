@@ -53,18 +53,30 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [isNodeDialogOpen, setIsNodeDialogOpen] = useState(false);
   const [isEdgeDialogOpen, setIsEdgeDialogOpen] = useState(false);
-  const [nodeFormData, setNodeFormData] = useState({
+  const [nodeFormData, setNodeFormData] = useState<{
+    id: string;
+    label: string;
+    type: 'agent' | 'tool' | 'condition';
+    icon: string;
+    agentId: string;
+  }>({
     id: '',
     label: '',
-    type: 'agent' as const,
+    type: 'agent',
     icon: 'bot',
     agentId: ''
   });
-  const [edgeFormData, setEdgeFormData] = useState({
+  
+  const [edgeFormData, setEdgeFormData] = useState<{
+    from: string;
+    to: string;
+    label: string;
+    type: 'solid' | 'dashed';
+  }>({
     from: '',
     to: '',
     label: '',
-    type: 'solid' as const
+    type: 'solid'
   });
   
   // Update nodes/edges when initialTemplate changes
@@ -407,8 +419,8 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
               </Label>
               <Select
                 value={nodeFormData.type}
-                onValueChange={(value: 'agent' | 'tool' | 'condition') => 
-                  setNodeFormData({ ...nodeFormData, type: value })
+                onValueChange={(value) => 
+                  setNodeFormData({ ...nodeFormData, type: value as 'agent' | 'tool' | 'condition' })
                 }
               >
                 <SelectTrigger className="col-span-3 bg-black/60 border-gray-700">
@@ -552,8 +564,8 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
               </Label>
               <Select
                 value={edgeFormData.type}
-                onValueChange={(value: 'solid' | 'dashed') => 
-                  setEdgeFormData({ ...edgeFormData, type: value })
+                onValueChange={(value) => 
+                  setEdgeFormData({ ...edgeFormData, type: value as 'solid' | 'dashed' })
                 }
               >
                 <SelectTrigger className="col-span-3 bg-black/60 border-gray-700">

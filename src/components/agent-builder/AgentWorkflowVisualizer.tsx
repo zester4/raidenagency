@@ -242,7 +242,6 @@ export const AgentWorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
                   <foreignObject width="120" height="60">
                     <div
                       className="w-full h-full flex flex-col items-center justify-center px-2"
-                      xmlns="http://www.w3.org/1999/xhtml"
                     >
                       <div className="flex items-center justify-center mb-1">
                         {icon}
