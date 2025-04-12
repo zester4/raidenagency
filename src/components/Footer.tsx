@@ -1,100 +1,82 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '@/components/Logo';
 import { 
-  Facebook, 
+  Github, 
   Twitter, 
   Linkedin, 
-  Github, 
-  CornerRightUp, 
-  Bot, 
-  BarChart3, 
-  Users 
+  Globe, 
+  Mail,
+  Bot
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Logo from '@/components/Logo';
 
 const Footer = () => {
   return (
-    <footer className="bg-black border-t border-gray-800 relative z-10">
+    <footer className="border-t border-gray-800 bg-black/50 backdrop-blur-sm mt-auto">
       <div className="container mx-auto px-4 py-12">
-        {/* CTA Section */}
-        <div className="mb-16 relative rounded-2xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-electric-blue/20 to-cyberpunk-purple/20 backdrop-blur-sm"></div>
-          <div className="bg-[url(/circuit-board.svg)] bg-cover opacity-10 absolute inset-0"></div>
-          <div className="relative z-10 py-12 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-center md:text-left mb-8 md:mb-0">
-              <h3 className="text-2xl md:text-3xl font-bold mb-4">Ready to build your AI agents?</h3>
-              <p className="text-gray-400 max-w-md">Join thousands of businesses using Raiden to create, deploy, and manage AI agents today.</p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/pricing">
-                <Button variant="outline" className="border-electric-blue text-electric-blue hover:bg-electric-blue/10">
-                  See Pricing
-                </Button>
-              </Link>
-              <Link to="/auth?signup=true">
-                <Button className="bg-gradient-to-r from-electric-blue to-cyberpunk-purple hover:from-electric-blue/90 hover:to-cyberpunk-purple/90">
-                  Get Started Free
-                  <CornerRightUp className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-        
-        {/* Main Footer */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
-          {/* Logo and Info */}
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-10">
+          {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <Logo className="h-8 w-auto" />
+              <Logo />
               <span className="ml-3 text-xl font-bold text-white">Raiden</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
-              Building the next generation of AI agents to help businesses automate tasks, improve customer experiences, and drive growth.
+              Building the future of AI agents with state-of-the-art language models 
+              and innovative agent architecture.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Facebook className="h-5 w-5" />
+              <a 
+                href="#" 
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-5 w-5 text-gray-400" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Twitter className="h-5 w-5" />
+              <a 
+                href="#" 
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5 text-gray-400" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Github className="h-5 w-5" />
+              <a 
+                href="#" 
+                className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                aria-label="GitHub"
+              >
+                <Github className="h-5 w-5 text-gray-400" />
               </a>
             </div>
           </div>
           
-          {/* Platform */}
+          {/* Products */}
           <div>
-            <h3 className="text-white font-medium mb-6">Platform</h3>
-            <ul className="space-y-4">
+            <h3 className="text-white font-medium mb-4">Platform</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/services" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <Bot className="h-4 w-4 mr-2 text-electric-blue" />
+                <Link to="/services" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Agent Builder
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard/tools" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <Bot className="h-4 w-4 mr-2 text-cyberpunk-purple" />
-                  Tools & Integrations
-                </Link>
-              </li>
-              <li>
-                <Link to="/services#knowledge-base" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <Bot className="h-4 w-4 mr-2 text-holographic-teal" />
+                <Link to="/services" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Knowledge Base
                 </Link>
               </li>
               <li>
-                <Link to="/analytics" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                  <BarChart3 className="h-4 w-4 mr-2 text-amber-400" />
+                <Link to="/pricing" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link to="/services" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Enterprise
+                </Link>
+              </li>
+              <li>
+                <Link to="/analytics" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Analytics
                 </Link>
               </li>
@@ -103,31 +85,31 @@ const Footer = () => {
           
           {/* Resources */}
           <div>
-            <h3 className="text-white font-medium mb-6">Resources</h3>
-            <ul className="space-y-4">
+            <h3 className="text-white font-medium mb-4">Resources</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/case-studies" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/case-studies" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Case Studies
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-gray-400 hover:text-white transition-colors">
-                  Pricing Plans
-                </Link>
-              </li>
-              <li>
-                <Link to="/technology" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/technology" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Technology
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Documentation
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
                   API Reference
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Blog
                 </a>
               </li>
             </ul>
@@ -135,51 +117,76 @@ const Footer = () => {
           
           {/* Company */}
           <div>
-            <h3 className="text-white font-medium mb-6">Company</h3>
-            <ul className="space-y-4">
+            <h3 className="text-white font-medium mb-4">Company</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/about" className="text-gray-400 hover:text-electric-blue transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/team" className="text-gray-400 hover:text-white transition-colors">
-                  Our Team
+                <Link to="/team" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Team
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">
-                  Contact Us
+                <Link to="/contact" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Contact
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
                   Careers
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  Blog
+                <Link to="/pricing" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Pricing
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          {/* Legal */}
+          <div>
+            <h3 className="text-white font-medium mb-4">Legal</h3>
+            <ul className="space-y-3">
+              <li>
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Cookie Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-electric-blue transition-colors">
+                  Data Processing
                 </a>
               </li>
             </ul>
           </div>
         </div>
         
-        {/* Bottom Footer */}
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Raiden AI, Inc. All rights reserved.
+            © {new Date().getFullYear()} Raiden, Inc. All rights reserved.
           </p>
-          <div className="flex space-x-6">
-            <a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">
-              Privacy Policy
+          <div className="flex items-center space-x-6">
+            <a href="#" className="text-gray-500 hover:text-gray-300 text-sm">
+              <Globe className="h-4 w-4 inline mr-1" />
+              English (US)
             </a>
-            <a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="text-gray-500 hover:text-white text-sm transition-colors">
-              Cookie Policy
+            <a href="#" className="text-gray-500 hover:text-gray-300 text-sm">
+              <Mail className="h-4 w-4 inline mr-1" />
+              Contact
             </a>
           </div>
         </div>

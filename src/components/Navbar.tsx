@@ -24,13 +24,13 @@ import {
 } from 'lucide-react';
 import Logo from '@/components/Logo';
 import { cn } from '@/lib/utils';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Navbar = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -123,7 +123,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center">
-            <Logo className="h-8 w-auto" />
+            <Logo />
             <span className="ml-3 text-xl font-bold text-white">Raiden</span>
           </Link>
 

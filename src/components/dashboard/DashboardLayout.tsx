@@ -23,7 +23,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useSubscription } from '@/hooks/useSubscription';
 
 interface DashboardLayoutProps {
@@ -34,7 +34,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile();
   const { currentPlan } = useSubscription();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(isMobile);
   const [darkMode, setDarkMode] = useState(true);
@@ -210,7 +210,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             {!sidebarCollapsed ? (
               <div className="flex items-center">
                 <Avatar className="h-8 w-8 border border-gray-700 bg-gray-900">
-                  <AvatarImage src={user?.avatar_url || undefined} />
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
                   <AvatarFallback className="bg-electric-blue/20 text-electric-blue">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
@@ -232,7 +232,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             ) : (
               <div className="flex flex-col items-center gap-4">
                 <Avatar className="h-8 w-8 border border-gray-700 bg-gray-900">
-                  <AvatarImage src={user?.avatar_url || undefined} />
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
                   <AvatarFallback className="bg-electric-blue/20 text-electric-blue">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </AvatarFallback>
@@ -284,7 +284,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
               <Avatar className="h-8 w-8 border border-gray-700">
-                <AvatarImage src={user?.avatar_url || undefined} />
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="bg-electric-blue/20 text-electric-blue">
                   {user?.email?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
