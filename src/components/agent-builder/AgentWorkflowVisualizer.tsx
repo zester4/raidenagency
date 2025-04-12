@@ -23,7 +23,7 @@ interface Node {
   label: string;
   type: 'start' | 'end' | 'agent' | 'tool' | 'condition';
   position: { x: number, y: number };
-  icon?: React.ReactNode;
+  icon?: string;
   color?: string;
 }
 
@@ -240,9 +240,7 @@ export const AgentWorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
                     strokeWidth="1.5"
                   />
                   <foreignObject width="120" height="60">
-                    <div
-                      className="w-full h-full flex flex-col items-center justify-center px-2"
-                    >
+                    <div className="w-full h-full flex flex-col items-center justify-center px-2">
                       <div className="flex items-center justify-center mb-1">
                         {icon}
                       </div>

@@ -56,7 +56,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   const [nodeFormData, setNodeFormData] = useState<{
     id: string;
     label: string;
-    type: 'agent' | 'tool' | 'condition';
+    type: string;
     icon: string;
     agentId: string;
   }>({
@@ -71,7 +71,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
     from: string;
     to: string;
     label: string;
-    type: 'solid' | 'dashed';
+    type: string;
   }>({
     from: '',
     to: '',
@@ -115,7 +115,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
     const newNode: WorkflowNode = {
       id,
       label,
-      type,
+      type: type as 'agent' | 'tool' | 'condition',
       position: { x: 350, y: 200 },
       icon
     };
@@ -172,7 +172,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
       from,
       to,
       label,
-      type
+      type: type as 'solid' | 'dashed'
     };
     
     // Add new edge
@@ -419,9 +419,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
               </Label>
               <Select
                 value={nodeFormData.type}
-                onValueChange={(value) => 
-                  setNodeFormData({ ...nodeFormData, type: value as 'agent' | 'tool' | 'condition' })
-                }
+                onValueChange={(value) => setNodeFormData({ ...nodeFormData, type: value })}
               >
                 <SelectTrigger className="col-span-3 bg-black/60 border-gray-700">
                   <SelectValue placeholder="Select node type" />
@@ -564,9 +562,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
               </Label>
               <Select
                 value={edgeFormData.type}
-                onValueChange={(value) => 
-                  setEdgeFormData({ ...edgeFormData, type: value as 'solid' | 'dashed' })
-                }
+                onValueChange={(value) => setEdgeFormData({ ...edgeFormData, type: value })}
               >
                 <SelectTrigger className="col-span-3 bg-black/60 border-gray-700">
                   <SelectValue placeholder="Select line style" />

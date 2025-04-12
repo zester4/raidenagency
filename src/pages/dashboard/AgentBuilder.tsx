@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -25,7 +26,8 @@ import {
   Wrench,
   Layers,
   Workflow,
-  Share2
+  Share2,
+  MessageSquare
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -36,10 +38,12 @@ import AgentCreator from '@/components/dashboard/AgentCreator';
 import ModelSelector from '@/components/dashboard/ModelSelector';
 import { useAgents } from '@/hooks/useAgents';
 import { useSubscription } from '@/hooks/useSubscription';
-import { UserAgent, userAgentService } from '@/lib/agent-service';
+import { UserAgent } from '@/lib/agent-service';
 import WorkflowTemplateSelector from '@/components/agent-builder/WorkflowTemplateSelector';
 import WorkflowComposer from '@/components/agent-builder/WorkflowComposer';
 import { WorkflowTemplate } from '@/lib/agent-workflow-templates';
+import VectorStoreInterface from '@/components/agent-builder/VectorStoreInterface';
+import AgentChatInterface from '@/components/agent-builder/AgentChatInterface';
 
 const AgentBuilder = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -49,6 +53,9 @@ const AgentBuilder = () => {
   const [selectedTab, setSelectedTab] = useState('my-agents');
   const [selectedWorkflowTemplate, setSelectedWorkflowTemplate] = useState<WorkflowTemplate | null>(null);
   const [showWorkflowComposer, setShowWorkflowComposer] = useState(false);
+  const [showVectorStore, setShowVectorStore] = useState(false);
+  const [showChatInterface, setShowChatInterface] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<UserAgent | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const { 
@@ -86,12 +93,16 @@ const AgentBuilder = () => {
     setShowCreator(true);
     setShowModelSelector(false);
     setShowWorkflowComposer(false);
+    setShowVectorStore(false);
+    setShowChatInterface(false);
   };
 
   const handleConfigureModel = () => {
     setShowModelSelector(true);
     setShowCreator(false);
     setShowWorkflowComposer(false);
+    setShowVectorStore(false);
+    setShowChatInterface(false);
   };
 
   const handleCreateWorkflow = () => {
@@ -107,6 +118,8 @@ const AgentBuilder = () => {
     setShowWorkflowComposer(true);
     setShowCreator(false);
     setShowModelSelector(false);
+    setShowVectorStore(false);
+    setShowChatInterface(false);
   };
 
   const handleUseTemplate = (templateId: string) => {
@@ -121,6 +134,8 @@ const AgentBuilder = () => {
       setShowCreator(true);
       setShowModelSelector(false);
       setShowWorkflowComposer(false);
+      setShowVectorStore(false);
+      setShowChatInterface(false);
     }
   };
 
@@ -171,6 +186,37 @@ const AgentBuilder = () => {
 
   const handleDeployAgent = async (agentId: string, deployment: any): Promise<void> => {
     console.log(`Deploying agent with ID: ${agentId}`, deployment);
+  };
+
+  const handleManageVectorStore = (agent: UserAgent) => {
+    setSelectedAgent(agent);
+    setShowVectorStore(true);
+    setShowCreator(false);
+    setShowModelSelector(false);
+    setShowWorkflowComposer(false);
+    setShowChatInterface(false);
+  };
+
+  const handleOpenChat = (agent: UserAgent) => {
+    setSelectedAgent(agent);
+    setShowChatInterface(true);
+    setShowVectorStore(false);
+    setShowCreator(false);
+    setShowModelSelector(false);
+    setShowWorkflowComposer(false);
+  };
+
+  const handleOpenVectorStoreTools = () => {
+    if (agents.length === 0) {
+      toast({
+        title: "No agents available",
+        description: "Create an agent first to use the vector store tools.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    handleManageVectorStore(agents[0]);
   };
 
   if (error) {
@@ -266,6 +312,54 @@ const AgentBuilder = () => {
               initialTemplate={selectedWorkflowTemplate || undefined}
               onSave={handleSaveWorkflow}
             />
+          </div>
+        ) : showVectorStore && selectedAgent ? (
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowVectorStore(false)} 
+              className="mb-4"
+            >
+              Back to Agents
+            </Button>
+            <div className="mb-4">
+              <h2 className="text-2xl font-heading text-white mb-2">Knowledge Base: {selectedAgent.name}</h2>
+              <p className="text-muted-foreground">Manage documents and vector store embeddings for your agent</p>
+            </div>
+            <VectorStoreInterface 
+              agentId={selectedAgent.id} 
+              collectionName={selectedAgent.vector_store?.collection_name || `${selectedAgent.name.toLowerCase().replace(/\s+/g, '_')}_docs`}
+              documentCount={selectedAgent.vector_store?.document_count || 0}
+              onDocumentsUpdated={(count) => {
+                if (selectedAgent && updateAgent) {
+                  updateAgent(selectedAgent.id, {
+                    ...selectedAgent,
+                    vector_store: {
+                      ...selectedAgent.vector_store,
+                      enabled: true,
+                      document_count: count
+                    }
+                  });
+                }
+              }}
+            />
+          </div>
+        ) : showChatInterface && selectedAgent ? (
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowChatInterface(false)} 
+              className="mb-4"
+            >
+              Back to Agents
+            </Button>
+            <div className="mb-4">
+              <h2 className="text-2xl font-heading text-white mb-2">Chat with {selectedAgent.name}</h2>
+              <p className="text-muted-foreground">Test your agent's capabilities in real-time</p>
+            </div>
+            <div className="h-[600px]">
+              <AgentChatInterface agent={selectedAgent} />
+            </div>
           </div>
         ) : (
           <>
@@ -383,15 +477,27 @@ const AgentBuilder = () => {
                           name: agent.name,
                           description: agent.description || '',
                           icon: <Bot className="h-6 w-6 text-electric-blue" />,
-                          status: agent.status,
-                          lastUpdated: agent.updated_at,
+                          status: agent.status || 'offline',
+                          lastUpdated: agent.updated_at || '',
                           category: agent.category || 'general'
                         }}
                         viewMode={viewMode}
                         onEdit={handleEditAgent}
                         onDelete={handleDeleteAgent}
-                        onToggleStatus={handleToggleAgentStatus}
+                        onToggleStatus={handleToggleStatus}
                         onDeploy={handleDeployAgent}
+                        extraActions={[
+                          {
+                            label: 'Knowledge Base',
+                            icon: <Database className="h-4 w-4" />,
+                            onClick: () => handleManageVectorStore(agent)
+                          },
+                          {
+                            label: 'Chat',
+                            icon: <MessageSquare className="h-4 w-4" />,
+                            onClick: () => handleOpenChat(agent)
+                          }
+                        ]}
                       />
                     ))}
                   </div>
@@ -483,7 +589,9 @@ const AgentBuilder = () => {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full">Explore Vector Stores</Button>
+                    <Button variant="outline" className="w-full" onClick={handleOpenVectorStoreTools}>
+                      Explore Vector Stores
+                    </Button>
                   </CardFooter>
                 </Card>
 
@@ -501,7 +609,14 @@ const AgentBuilder = () => {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full">Explore Tools</Button>
+                    <Button variant="outline" className="w-full" onClick={() => {
+                      toast({
+                        title: "Coming Soon",
+                        description: "Tool integration functionality is under development."
+                      });
+                    }}>
+                      Explore Tools
+                    </Button>
                   </CardFooter>
                 </Card>
 
