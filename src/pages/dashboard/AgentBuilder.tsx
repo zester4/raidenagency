@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -155,25 +154,23 @@ const AgentBuilder = () => {
     }
   };
 
-  // Define the handler functions that were missing
-  const handleEditAgent = (agentId: string) => {
-    // Implementation for editing an agent
-    console.log(`Editing agent with ID: ${agentId}`);
+  const handleEditAgent = async (agentId: string, updatedData?: Partial<UserAgent>): Promise<void> => {
+    console.log(`Editing agent with ID: ${agentId}`, updatedData);
+    if (updatedData) {
+      await updateAgent(agentId, updatedData);
+    }
   };
 
-  const handleDeleteAgent = (agentId: string) => {
-    // Call the deleteAgent function from useAgents
-    deleteAgent(agentId);
+  const handleDeleteAgent = async (agentId: string): Promise<void> => {
+    await deleteAgent(agentId);
   };
 
-  const handleToggleAgentStatus = (agentId: string, currentStatus: 'online' | 'offline' | 'error') => {
-    // Call the toggleAgentStatus function from useAgents
-    toggleAgentStatus(agentId, currentStatus);
+  const handleToggleAgentStatus = async (agentId: string, currentStatus: 'online' | 'offline' | 'error'): Promise<void> => {
+    await toggleAgentStatus(agentId, currentStatus);
   };
 
-  const handleDeployAgent = (agentId: string) => {
-    // Implementation for deploying an agent
-    console.log(`Deploying agent with ID: ${agentId}`);
+  const handleDeployAgent = async (agentId: string, deployment: any): Promise<void> => {
+    console.log(`Deploying agent with ID: ${agentId}`, deployment);
   };
 
   if (error) {
@@ -250,7 +247,11 @@ const AgentBuilder = () => {
             >
               Back to Agents
             </Button>
-            <AgentCreator onCreateAgent={createAgent} />
+            <AgentCreator onCreateAgent={async (agent) => {
+              if (createAgent) {
+                await createAgent(agent as Omit<UserAgent, "id" | "created_at" | "updated_at">);
+              }
+            }} />
           </div>
         ) : showWorkflowComposer ? (
           <div className="mb-6">
