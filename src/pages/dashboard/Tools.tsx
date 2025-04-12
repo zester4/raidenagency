@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { 
   Wrench, 
   Plus, 
@@ -255,7 +255,6 @@ const Tools = () => {
     }
   };
 
-  // Function to get icon component based on icon string
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case 'search':

@@ -9,3 +9,9 @@ verify_jwt = true
 
 [functions.agent-tools]
 verify_jwt = true
+
+[functions.agent-tools.available]
+verify_jwt = true
+
+[functions.agent-tools.agent]
+verify_jwt = true

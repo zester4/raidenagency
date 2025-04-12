@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -17,6 +16,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import {
   CartesianGrid,
   XAxis,
@@ -67,7 +67,7 @@ const Analytics = () => {
       title: 'Total Conversations',
       value: '12,432',
       change: '+24%',
-      icon: <MessagesSquare className="h-5 w-5 text-electric-blue" />,
+      icon: <MessagesSquare className="h-5 w-5 text-electric-blue mr-2" />,
       description: 'vs. previous month',
     },
     {
