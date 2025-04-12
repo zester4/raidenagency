@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useAgents } from '@/hooks/useAgents';
@@ -33,7 +32,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
-import { AlertCircle, Database, FileText, Globe, Key, Plus, Search, Server, Trash2, Wrench } from 'lucide-react';
+import { 
+  AlertCircle, 
+  Database, 
+  FileText, 
+  Globe, 
+  Key, 
+  Plus, 
+  Search, 
+  Server, 
+  Trash2, 
+  Wrench,
+  Code,
+  GitBranch,
+  Workflow
+} from 'lucide-react';
 
 const Tools = () => {
   const { agents, loading, error } = useAgents();
@@ -48,16 +61,15 @@ const Tools = () => {
     configuration: "{}"
   });
 
-  // Tool categories
   const toolCategories = [
     { id: "api", name: "API Connection", icon: <Globe className="h-5 w-5" /> },
     { id: "database", name: "Database", icon: <Database className="h-5 w-5" /> },
     { id: "knowledge", name: "Knowledge Base", icon: <FileText className="h-5 w-5" /> },
     { id: "function", name: "Custom Function", icon: <Server className="h-5 w-5" /> },
     { id: "authentication", name: "Authentication", icon: <Key className="h-5 w-5" /> },
+    { id: "workflow", name: "Workflow", icon: <Workflow className="h-5 w-5" /> },
   ];
 
-  // Mock available tools (these would come from an API in production)
   const availableTools = [
     {
       id: "tool-1",
@@ -90,10 +102,33 @@ const Tools = () => {
       category: "authentication",
       popularityScore: 87,
       icon: <Key className="h-5 w-5" />
+    },
+    {
+      id: "tool-5",
+      name: "LangGraph Agent Router",
+      description: "Route conversations between different agents based on user requests",
+      category: "workflow",
+      popularityScore: 94,
+      icon: <Workflow className="h-5 w-5" />
+    },
+    {
+      id: "tool-6",
+      name: "Human-in-the-loop Approval",
+      description: "Pause agent execution and request human approval for sensitive actions",
+      category: "workflow",
+      popularityScore: 91,
+      icon: <GitBranch className="h-5 w-5" />
+    },
+    {
+      id: "tool-7",
+      name: "Custom Tool Function",
+      description: "Write custom JavaScript functions that your agents can call",
+      category: "function",
+      popularityScore: 88,
+      icon: <Code className="h-5 w-5" />
     }
   ];
 
-  // Mock installed tools
   const [installedTools, setInstalledTools] = useState([
     {
       id: "installed-1",
@@ -103,10 +138,18 @@ const Tools = () => {
       agent_id: "agent-1",
       status: "active",
       icon: <Search className="h-5 w-5" />
+    },
+    {
+      id: "installed-2",
+      name: "LangGraph Router",
+      description: "Route conversations to specialized agents",
+      category: "workflow",
+      agent_id: "agent-1",
+      status: "active",
+      icon: <Workflow className="h-5 w-5" />
     }
   ]);
 
-  // Filter tools based on search query
   const filteredAvailableTools = availableTools.filter(tool => 
     tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     tool.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -114,11 +157,8 @@ const Tools = () => {
 
   const handleAddTool = () => {
     try {
-      // Validate JSON
       JSON.parse(newToolData.configuration);
       
-      // Add tool logic would go here (calling the API)
-      // This is a simulation
       const newTool = {
         id: `installed-${Date.now()}`,
         name: newToolData.name,
@@ -261,6 +301,7 @@ const Tools = () => {
                         <SelectItem value="knowledge">Knowledge Base</SelectItem>
                         <SelectItem value="function">Custom Function</SelectItem>
                         <SelectItem value="authentication">Authentication</SelectItem>
+                        <SelectItem value="workflow">Workflow</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -307,14 +348,17 @@ const Tools = () => {
         </div>
         
         <Tabs defaultValue="available" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 bg-black/30">
+          <TabsList className="grid w-full grid-cols-3 bg-black/30">
             <TabsTrigger value="available">Available Tools</TabsTrigger>
             <TabsTrigger value="installed">Installed Tools</TabsTrigger>
+            <TabsTrigger value="workflow">Workflow Tools</TabsTrigger>
           </TabsList>
           
           <TabsContent value="available">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-              {filteredAvailableTools.map(tool => (
+              {filteredAvailableTools
+                .filter(tool => tool.category !== 'workflow')
+                .map(tool => (
                 <Card key={tool.id} className="bg-black/20 border-gray-800 hover:border-electric-blue/50 transition-all duration-300">
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
@@ -392,6 +436,70 @@ const Tools = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="workflow">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {filteredAvailableTools
+                .filter(tool => tool.category === 'workflow')
+                .map(tool => (
+                <Card key={tool.id} className="bg-black/20 border-gray-800 hover:border-electric-blue/50 transition-all duration-300">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-2 rounded-full bg-electric-blue/10 text-electric-blue">
+                          {tool.icon}
+                        </div>
+                        <CardTitle className="text-lg">{tool.name}</CardTitle>
+                      </div>
+                      <Badge variant="outline" className="bg-holographic-teal/20 text-holographic-teal border-holographic-teal/50">
+                        Workflow
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-gray-400 min-h-[60px]">
+                      {tool.description}
+                    </CardDescription>
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <div className="text-xs text-gray-500">
+                      Popularity: {tool.popularityScore}%
+                    </div>
+                    <Button size="sm" disabled={!selectedAgent}>
+                      Install
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+              
+              <Card className="bg-black/20 border-gray-800">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 rounded-full bg-electric-blue/10 text-electric-blue">
+                        <GitBranch className="h-5 w-5" />
+                      </div>
+                      <CardTitle className="text-lg">LangGraph Architecture</CardTitle>
+                    </div>
+                    <Badge variant="outline" className="bg-black/50 text-gray-400 border-gray-600">
+                      Reference
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-gray-400">
+                    Learn about the underlying architecture used for building complex agent workflows and orchestration
+                  </CardDescription>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <div></div>
+                  <Button size="sm" variant="outline">
+                    View Documentation
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

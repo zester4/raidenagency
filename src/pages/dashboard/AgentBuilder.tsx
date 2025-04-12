@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -24,7 +23,9 @@ import {
   Loader2,
   Database,
   Wrench,
-  Layers
+  Layers,
+  Workflow,
+  Share2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,9 @@ import ModelSelector from '@/components/dashboard/ModelSelector';
 import { useAgents } from '@/hooks/useAgents';
 import { useSubscription } from '@/hooks/useSubscription';
 import { UserAgent, userAgentService } from '@/lib/agent-service';
+import WorkflowTemplateSelector from '@/components/agent-builder/WorkflowTemplateSelector';
+import WorkflowComposer from '@/components/agent-builder/WorkflowComposer';
+import { WorkflowTemplate } from '@/lib/agent-workflow-templates';
 
 const AgentBuilder = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -43,6 +47,8 @@ const AgentBuilder = () => {
   const [showCreator, setShowCreator] = useState(false);
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [selectedTab, setSelectedTab] = useState('my-agents');
+  const [selectedWorkflowTemplate, setSelectedWorkflowTemplate] = useState<WorkflowTemplate | null>(null);
+  const [showWorkflowComposer, setShowWorkflowComposer] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { 
@@ -57,7 +63,6 @@ const AgentBuilder = () => {
   } = useAgents();
   const { currentPlan, isFreePlan } = useSubscription();
 
-  // Filter agents based on search query
   const filteredTemplates = templates.filter(template => 
     template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     template.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -69,7 +74,6 @@ const AgentBuilder = () => {
   );
 
   const handleCreateNewAgent = () => {
-    // Check subscription limits
     if (currentPlan && agents.length >= (currentPlan.limits?.max_agents || 0)) {
       toast({
         title: "Subscription limit reached",
@@ -81,24 +85,31 @@ const AgentBuilder = () => {
     
     setShowCreator(true);
     setShowModelSelector(false);
+    setShowWorkflowComposer(false);
   };
 
   const handleConfigureModel = () => {
     setShowModelSelector(true);
     setShowCreator(false);
+    setShowWorkflowComposer(false);
   };
 
-  const handleUseTemplate = (templateId: string) => {
-    // Check subscription limits
-    if (currentPlan && agents.length >= (currentPlan.limits?.max_agents || 0)) {
+  const handleCreateWorkflow = () => {
+    if (isFreePlan) {
       toast({
-        title: "Subscription limit reached",
-        description: `Your ${currentPlan.name} plan allows a maximum of ${currentPlan.limits?.max_agents} agents. Please upgrade to create more.`,
+        title: "Feature not available",
+        description: "Multi-agent workflows are only available on paid plans. Please upgrade to access this feature.",
         variant: "destructive",
       });
       return;
     }
     
+    setShowWorkflowComposer(true);
+    setShowCreator(false);
+    setShowModelSelector(false);
+  };
+
+  const handleUseTemplate = (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
     if (template) {
       toast({
@@ -109,58 +120,35 @@ const AgentBuilder = () => {
       
       setShowCreator(true);
       setShowModelSelector(false);
+      setShowWorkflowComposer(false);
     }
   };
 
-  const handleCreateAgent = async (agentData: Partial<UserAgent>) => {
-    if (!user) return;
+  const handleSelectWorkflowTemplate = (template: WorkflowTemplate) => {
+    setSelectedWorkflowTemplate(template);
     
-    const newAgent = await createAgent({
-      ...agentData,
-      user_id: user.id,
-      status: 'offline',
-    } as Omit<UserAgent, 'id' | 'created_at' | 'updated_at'>);
+    toast({
+      title: "Workflow template selected",
+      description: `You've selected the ${template.name} workflow. You can now customize it.`,
+    });
     
-    if (newAgent) {
-      setShowCreator(false);
-      setSelectedTab('my-agents');
-    }
+    setShowWorkflowComposer(true);
   };
 
-  const handleEditAgent = async (agentId: string, updatedData?: Partial<UserAgent>) => {
-    if (updatedData) {
-      await updateAgent(agentId, updatedData);
-    } else {
-      toast({
-        title: "Edit agent",
-        description: "Agent editing functionality is now available.",
-        variant: "default",
-      });
-    }
-  };
-
-  const handleDeleteAgent = async (agentId: string) => {
-    await deleteAgent(agentId);
-  };
-
-  const handleToggleAgentStatus = async (agentId: string, currentStatus: 'online' | 'offline' | 'error') => {
-    await toggleAgentStatus(agentId, currentStatus);
-  };
-
-  const handleDeployAgent = async (agentId: string, deployment: any) => {
+  const handleSaveWorkflow = async (workflow: any) => {
     try {
-      const result = await userAgentService.deploy(agentId, deployment);
-      if (result) {
-        toast({
-          title: "Agent deployed",
-          description: `Your agent has been successfully deployed as a ${deployment.type.replace('-', ' ')}.`,
-        });
-      }
-    } catch (error) {
-      console.error('Error deploying agent:', error);
       toast({
-        title: "Deployment failed",
-        description: "There was an error deploying your agent. Please try again later.",
+        title: "Workflow saved",
+        description: "Your agent workflow has been saved successfully and is ready to use.",
+      });
+      
+      setShowWorkflowComposer(false);
+      setSelectedTab('my-agents');
+    } catch (error) {
+      console.error('Error saving workflow:', error);
+      toast({
+        title: "Failed to save workflow",
+        description: "There was an error saving your workflow. Please try again.",
         variant: "destructive",
       });
     }
@@ -181,7 +169,6 @@ const AgentBuilder = () => {
   return (
     <DashboardLayout>
       <div className="p-4 md:p-8">
-        {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-3">
             <BrainCircuit className="h-8 w-8 text-electric-blue" />
@@ -198,15 +185,25 @@ const AgentBuilder = () => {
                 {agents.length} / {currentPlan.limits?.max_agents || 'Unlimited'} agents
               </span>
               
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="ml-auto"
-                onClick={handleConfigureModel}
-              >
-                <BrainCircuit className="mr-2 h-4 w-4" />
-                Configure AI Model
-              </Button>
+              <div className="ml-auto flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCreateWorkflow}
+                >
+                  <Workflow className="mr-2 h-4 w-4" />
+                  Create Workflow
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleConfigureModel}
+                >
+                  <BrainCircuit className="mr-2 h-4 w-4" />
+                  Configure AI Model
+                </Button>
+              </div>
             </div>
           )}
         </header>
@@ -233,9 +230,22 @@ const AgentBuilder = () => {
             </Button>
             <AgentCreator onCreateAgent={handleCreateAgent} />
           </div>
+        ) : showWorkflowComposer ? (
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowWorkflowComposer(false)} 
+              className="mb-4"
+            >
+              Back to Agents
+            </Button>
+            <WorkflowComposer 
+              initialTemplate={selectedWorkflowTemplate || undefined}
+              onSave={handleSaveWorkflow}
+            />
+          </div>
         ) : (
           <>
-            {/* Tabs */}
             <Tabs 
               defaultValue="my-agents" 
               value={selectedTab}
@@ -255,6 +265,12 @@ const AgentBuilder = () => {
                     className="data-[state=active]:bg-electric-blue/10"
                   >
                     Templates
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="workflows" 
+                    className="data-[state=active]:bg-electric-blue/10"
+                  >
+                    Workflows
                   </TabsTrigger>
                   <TabsTrigger 
                     value="marketplace" 
@@ -295,7 +311,6 @@ const AgentBuilder = () => {
                 </div>
               </div>
 
-              {/* My Agents Tab */}
               <TabsContent value="my-agents" className="mt-4">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-heading text-white">My Agents</h2>
@@ -360,7 +375,6 @@ const AgentBuilder = () => {
                 )}
               </TabsContent>
 
-              {/* Templates Tab */}
               <TabsContent value="templates" className="mt-4">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-heading text-white">Agent Templates</h2>
@@ -395,7 +409,24 @@ const AgentBuilder = () => {
                 )}
               </TabsContent>
 
-              {/* Marketplace Tab */}
+              <TabsContent value="workflows" className="mt-4">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-heading text-white">Agent Workflows</h2>
+                  <Button 
+                    className="bg-electric-blue hover:bg-electric-blue/90 shadow-neon-blue"
+                    onClick={handleCreateWorkflow}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Workflow
+                  </Button>
+                </div>
+
+                <WorkflowTemplateSelector 
+                  onSelect={handleSelectWorkflowTemplate}
+                  selectedTemplateId={selectedWorkflowTemplate?.id}
+                />
+              </TabsContent>
+
               <TabsContent value="marketplace" className="mt-4">
                 <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
                   <CardContent className="flex flex-col items-center justify-center py-16">
@@ -412,7 +443,6 @@ const AgentBuilder = () => {
               </TabsContent>
             </Tabs>
 
-            {/* Features Section */}
             <div className="mt-12">
               <h2 className="text-2xl font-heading text-white mb-6">Agent Building Features</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -466,7 +496,9 @@ const AgentBuilder = () => {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full">Open Graph Builder</Button>
+                    <Button variant="outline" className="w-full" onClick={handleCreateWorkflow}>
+                      Open Graph Builder
+                    </Button>
                   </CardFooter>
                 </Card>
               </div>
