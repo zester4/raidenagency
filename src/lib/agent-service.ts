@@ -26,6 +26,17 @@ export interface UserAgent {
   template_id?: string;
   created_at: string;
   updated_at: string;
+  deployment?: AgentDeployment;
+}
+
+export interface AgentDeployment {
+  id: string;
+  agent_id: string;
+  type: 'chat-widget' | 'api-endpoint' | 'standalone' | 'messaging';
+  status: 'active' | 'inactive';
+  config?: any;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AgentTool {
@@ -114,6 +125,33 @@ export const agentTemplateService = {
           system_prompt: 'You are a sales assistant.'
         },
         {
+          id: 'healthcare-agent',
+          name: 'Healthcare Assistant',
+          description: 'Provides basic medical information and schedules appointments',
+          category: 'healthcare',
+          popularity: 'medium',
+          icon: 'heart',
+          system_prompt: 'You are a healthcare assistant. Provide general health information and help schedule appointments. Always clarify you are not a doctor and cannot provide medical advice.'
+        },
+        {
+          id: 'security-agent',
+          name: 'Security Operations Agent',
+          description: 'Analyzes security alerts and helps with incident response',
+          category: 'security',
+          popularity: 'medium',
+          icon: 'shield',
+          system_prompt: 'You are a security operations assistant. Help analyze security alerts and guide incident response procedures.'
+        },
+        {
+          id: 'financial-advisor',
+          name: 'Financial Advisor Agent',
+          description: 'Provides financial advice and portfolio management suggestions',
+          category: 'finance',
+          popularity: 'medium',
+          icon: 'dollar-sign',
+          system_prompt: 'You are a financial advisor assistant. Provide general financial guidance while making it clear you\'re not a certified financial advisor.'
+        },
+        {
           id: 'custom',
           name: 'Custom Agent',
           description: 'Start from scratch and build a custom agent',
@@ -160,7 +198,20 @@ export const userAgentService = {
           status: 'online',
           system_prompt: 'You are a helpful customer support agent.',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          deployment: {
+            id: 'd1',
+            agent_id: '1',
+            type: 'chat-widget',
+            status: 'active',
+            config: {
+              title: 'Customer Support',
+              theme: 'dark',
+              primaryColor: '#0091FF'
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
         },
         {
           id: '2',
@@ -170,6 +221,17 @@ export const userAgentService = {
           category: 'technical',
           status: 'offline',
           system_prompt: 'You are a technical support specialist.',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '3',
+          user_id: '123',
+          name: 'Sales Assistant',
+          description: 'Helps with product inquiries and sales process',
+          category: 'sales',
+          status: 'offline',
+          system_prompt: 'You are a sales assistant focused on helping customers find the right products.',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
@@ -250,6 +312,132 @@ export const userAgentService = {
     } catch (error) {
       console.error('Error deleting agent:', error);
       toast.error('Failed to delete agent');
+    }
+  },
+
+  async deploy(id: string, deployment: Partial<AgentDeployment>): Promise<AgentDeployment | null> {
+    try {
+      // Mock implementation
+      const deploymentId = Math.random().toString(36).substring(2, 11);
+      const newDeployment: AgentDeployment = {
+        id: deploymentId,
+        agent_id: id,
+        type: deployment.type || 'chat-widget',
+        status: 'active',
+        config: deployment.config || {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      toast.success(`Agent deployed as ${deployment.type?.replace('-', ' ')}`);
+      return newDeployment;
+    } catch (error) {
+      console.error('Error deploying agent:', error);
+      toast.error('Failed to deploy agent');
+      return null;
+    }
+  },
+
+  async getDeployments(agentId: string): Promise<AgentDeployment[]> {
+    try {
+      // Mock implementation
+      const agent = await this.getById(agentId);
+      if (!agent || !agent.deployment) return [];
+      
+      return [agent.deployment];
+    } catch (error) {
+      console.error('Error fetching agent deployments:', error);
+      toast.error('Failed to load agent deployments');
+      return [];
+    }
+  },
+
+  async updateDeployment(deploymentId: string, updates: Partial<AgentDeployment>): Promise<AgentDeployment | null> {
+    try {
+      // Mock implementation
+      toast.success('Deployment updated successfully');
+      return {
+        ...updates,
+        id: deploymentId,
+        agent_id: updates.agent_id || '',
+        type: updates.type || 'chat-widget',
+        status: updates.status || 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as AgentDeployment;
+    } catch (error) {
+      console.error('Error updating deployment:', error);
+      toast.error('Failed to update deployment');
+      return null;
+    }
+  }
+};
+
+// Agent deployment service
+export const agentDeploymentService = {
+  async generateWidgetCode(agentId: string, config?: any): Promise<string> {
+    // Mock implementation
+    return `<script src="https://api.raidenagents.com/v1/widget.js" data-agent-id="${agentId}"></script>`;
+  },
+  
+  async generateApiEndpoint(agentId: string): Promise<string> {
+    // Mock implementation
+    return `https://api.raidenagents.com/v1/agents/${agentId}/chat`;
+  }
+};
+
+// Agent knowledge base service
+export const knowledgeBaseService = {
+  async getAllForAgent(agentId: string): Promise<AgentKnowledgeBase[]> {
+    try {
+      // Mock implementation
+      return [];
+    } catch (error) {
+      console.error('Error fetching knowledge bases:', error);
+      toast.error('Failed to load knowledge bases');
+      return [];
+    }
+  },
+  
+  async create(knowledgeBase: Omit<AgentKnowledgeBase, 'id'>): Promise<AgentKnowledgeBase | null> {
+    try {
+      // Mock implementation
+      const newKnowledgeBase: AgentKnowledgeBase = {
+        ...knowledgeBase,
+        id: Math.random().toString(36).substring(2, 11)
+      };
+      
+      toast.success('Knowledge base created successfully');
+      return newKnowledgeBase;
+    } catch (error) {
+      console.error('Error creating knowledge base:', error);
+      toast.error('Failed to create knowledge base');
+      return null;
+    }
+  }
+};
+
+// Agent documents service
+export const documentsService = {
+  async uploadDocument(knowledgeBaseId: string, file: File): Promise<AgentDocument | null> {
+    try {
+      // Mock implementation
+      const newDocument: AgentDocument = {
+        id: Math.random().toString(36).substring(2, 11),
+        knowledge_base_id: knowledgeBaseId,
+        filename: file.name,
+        file_size: file.size,
+        file_type: file.type,
+        storage_path: `/documents/${knowledgeBaseId}/${file.name}`,
+        processed: false
+      };
+      
+      toast.success('Document uploaded successfully');
+      return newDocument;
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast.error('Failed to upload document');
+      return null;
     }
   }
 };
@@ -351,6 +539,18 @@ export const subscriptionService = {
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
       return [];
+    }
+  },
+  
+  async upgradePlan(planId: string): Promise<boolean> {
+    try {
+      // Mock implementation
+      toast.success(`Successfully upgraded to ${planId} plan`);
+      return true;
+    } catch (error) {
+      console.error('Error upgrading plan:', error);
+      toast.error('Failed to upgrade plan');
+      return false;
     }
   }
 };

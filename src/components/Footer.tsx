@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
-import { Github, Twitter, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail, ArrowRight, CreditCard, BarChart, Users } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -67,6 +67,12 @@ const Footer = () => {
                   Custom AI Solutions
                 </Link>
               </li>
+              <li>
+                <Link to="/pricing" className="text-white/60 hover:text-electric-blue transition-colors duration-300 flex items-center">
+                  <CreditCard className="h-4 w-4 mr-1" />
+                  Pricing Plans
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -86,6 +92,18 @@ const Footer = () => {
               <li>
                 <Link to="/technology" className="text-white/60 hover:text-electric-blue transition-colors duration-300">
                   Technology
+                </Link>
+              </li>
+              <li>
+                <Link to="/team" className="text-white/60 hover:text-electric-blue transition-colors duration-300 flex items-center">
+                  <Users className="h-4 w-4 mr-1" />
+                  Our Team
+                </Link>
+              </li>
+              <li>
+                <Link to="/analytics" className="text-white/60 hover:text-electric-blue transition-colors duration-300 flex items-center">
+                  <BarChart className="h-4 w-4 mr-1" />
+                  Analytics
                 </Link>
               </li>
               <li>

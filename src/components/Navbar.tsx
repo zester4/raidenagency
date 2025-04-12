@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from "framer-motion";
 import Logo from './Logo';
-import { Menu, X, LogIn, UserPlus } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, CreditCard } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
@@ -53,6 +53,10 @@ const Navbar = () => {
           <Link to="/services" className="nav-link">Services</Link>
           <Link to="/case-studies" className="nav-link">Case Studies</Link>
           <Link to="/technology" className="nav-link">Technology</Link>
+          <Link to="/pricing" className="nav-link flex items-center">
+            <CreditCard size={18} className="mr-1" />
+            Pricing
+          </Link>
           
           {user ? (
             <Link to="/dashboard" className="cta-button text-sm px-4 py-2">
@@ -96,6 +100,10 @@ const Navbar = () => {
             <Link to="/services" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Services</Link>
             <Link to="/case-studies" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Case Studies</Link>
             <Link to="/technology" className="nav-link py-2" onClick={() => setIsMenuOpen(false)}>Technology</Link>
+            <Link to="/pricing" className="nav-link py-2 flex items-center" onClick={() => setIsMenuOpen(false)}>
+              <CreditCard size={18} className="mr-1" />
+              Pricing
+            </Link>
             
             {user ? (
               <Link to="/dashboard" className="cta-button text-sm px-4 py-2 text-center" onClick={() => setIsMenuOpen(false)}>

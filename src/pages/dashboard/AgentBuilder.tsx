@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -34,7 +35,7 @@ import AgentCreator from '@/components/dashboard/AgentCreator';
 import ModelSelector from '@/components/dashboard/ModelSelector';
 import { useAgents } from '@/hooks/useAgents';
 import { useSubscription } from '@/hooks/useSubscription';
-import { UserAgent } from '@/lib/agent-service';
+import { UserAgent, userAgentService } from '@/lib/agent-service';
 
 const AgentBuilder = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -51,7 +52,8 @@ const AgentBuilder = () => {
     error, 
     createAgent, 
     deleteAgent, 
-    toggleAgentStatus 
+    toggleAgentStatus,
+    updateAgent
   } = useAgents();
   const { currentPlan, isFreePlan } = useSubscription();
 
@@ -125,13 +127,16 @@ const AgentBuilder = () => {
     }
   };
 
-  const handleEditAgent = (agentId: string) => {
-    // For now, we'll just show a toast
-    toast({
-      title: "Edit agent",
-      description: "Agent editing functionality will be implemented in production.",
-      variant: "default",
-    });
+  const handleEditAgent = async (agentId: string, updatedData?: Partial<UserAgent>) => {
+    if (updatedData) {
+      await updateAgent(agentId, updatedData);
+    } else {
+      toast({
+        title: "Edit agent",
+        description: "Agent editing functionality is now available.",
+        variant: "default",
+      });
+    }
   };
 
   const handleDeleteAgent = async (agentId: string) => {
@@ -140,6 +145,25 @@ const AgentBuilder = () => {
 
   const handleToggleAgentStatus = async (agentId: string, currentStatus: 'online' | 'offline' | 'error') => {
     await toggleAgentStatus(agentId, currentStatus);
+  };
+
+  const handleDeployAgent = async (agentId: string, deployment: any) => {
+    try {
+      const result = await userAgentService.deploy(agentId, deployment);
+      if (result) {
+        toast({
+          title: "Agent deployed",
+          description: `Your agent has been successfully deployed as a ${deployment.type.replace('-', ' ')}.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error deploying agent:', error);
+      toast({
+        title: "Deployment failed",
+        description: "There was an error deploying your agent. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (error) {
@@ -329,6 +353,7 @@ const AgentBuilder = () => {
                         onEdit={handleEditAgent}
                         onDelete={handleDeleteAgent}
                         onToggleStatus={handleToggleAgentStatus}
+                        onDeploy={handleDeployAgent}
                       />
                     ))}
                   </div>

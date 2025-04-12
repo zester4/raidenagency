@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,8 @@ import {
   Copy, 
   Download,
   Trash2,
-  ExternalLink
+  ExternalLink,
+  Rocket
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,6 +23,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import AgentEditDialog from '@/components/dashboard/AgentEditDialog';
+import AgentDeployDialog from '@/components/dashboard/AgentDeployDialog';
+import { UserAgent } from '@/lib/agent-service';
 
 interface AgentProps {
   id: string;
@@ -36,9 +40,10 @@ interface AgentProps {
 interface AgentCardProps {
   agent: AgentProps;
   viewMode: 'grid' | 'list';
-  onEdit?: (agentId: string) => void;
-  onDelete?: (agentId: string) => void;
-  onToggleStatus?: (agentId: string, currentStatus: 'online' | 'offline' | 'error') => void;
+  onEdit?: (agentId: string, updatedData?: Partial<UserAgent>) => Promise<void>;
+  onDelete?: (agentId: string) => Promise<void>;
+  onToggleStatus?: (agentId: string, currentStatus: 'online' | 'offline' | 'error') => Promise<void>;
+  onDeploy?: (agentId: string, deployment: any) => Promise<void>;
 }
 
 export const AgentCard = ({ 
@@ -46,9 +51,12 @@ export const AgentCard = ({
   viewMode, 
   onEdit, 
   onDelete, 
-  onToggleStatus 
+  onToggleStatus,
+  onDeploy
 }: AgentCardProps) => {
   const { toast } = useToast();
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeployDialog, setShowDeployDialog] = useState(false);
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -59,15 +67,29 @@ export const AgentCard = ({
     }).format(date);
   };
 
-  const handleEdit = () => {
+  const handleEditClick = () => {
+    setShowEditDialog(true);
+  };
+
+  const handleDeployClick = () => {
+    setShowDeployDialog(true);
+  };
+
+  const handleEditSave = async (updatedData: Partial<UserAgent>) => {
     if (onEdit) {
-      onEdit(agent.id);
+      await onEdit(agent.id, updatedData);
+    } else {
+      toast({
+        title: "Edit operation",
+        description: "This is a demo. Edit functionality will be implemented in production.",
+        variant: "default",
+      });
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (onDelete) {
-      onDelete(agent.id);
+      await onDelete(agent.id);
     } else {
       toast({
         title: "Delete operation",
@@ -77,14 +99,26 @@ export const AgentCard = ({
     }
   };
 
-  const handleToggleStatus = () => {
+  const handleToggleStatus = async () => {
     if (onToggleStatus) {
-      onToggleStatus(agent.id, agent.status);
+      await onToggleStatus(agent.id, agent.status);
     } else {
       const newStatus = agent.status === 'online' ? 'offline' : 'online';
       toast({
         title: `Agent ${newStatus === 'online' ? 'activated' : 'deactivated'}`,
         description: `${agent.name} is now ${newStatus}.`,
+        variant: "default",
+      });
+    }
+  };
+
+  const handleDeploy = async (agentId: string, deployment: any) => {
+    if (onDeploy) {
+      await onDeploy(agentId, deployment);
+    } else {
+      toast({
+        title: "Deploy operation",
+        description: `Deployment settings for ${agent.name} have been saved.`,
         variant: "default",
       });
     }
@@ -142,8 +176,11 @@ export const AgentCard = ({
                   <PlayCircle className="h-4 w-4 text-gray-400" />
                 }
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleEdit}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleEditClick}>
                 <Edit className="h-4 w-4 text-gray-400" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDeployClick}>
+                <Rocket className="h-4 w-4 text-gray-400" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -169,6 +206,20 @@ export const AgentCard = ({
             </div>
           </div>
         </div>
+        
+        {/* Dialogs */}
+        <AgentEditDialog 
+          isOpen={showEditDialog} 
+          onClose={() => setShowEditDialog(false)} 
+          agent={agent as unknown as UserAgent}
+          onSave={handleEditSave}
+        />
+        <AgentDeployDialog
+          isOpen={showDeployDialog}
+          onClose={() => setShowDeployDialog(false)}
+          agent={agent as unknown as UserAgent}
+          onDeploy={handleDeploy}
+        />
       </Card>
     );
   }
@@ -201,10 +252,15 @@ export const AgentCard = ({
         </div>
       </div>
       <CardFooter className="flex justify-between p-6 pt-2 border-t border-gray-800">
-        <Button variant="outline" className="flex-1 mr-2" onClick={handleEdit}>Edit</Button>
+        <Button variant="outline" className="flex-1 mr-2" onClick={handleEditClick}>
+          <Edit className="h-4 w-4 mr-2" /> Edit
+        </Button>
+        <Button variant="outline" className="flex-1" onClick={handleDeployClick}>
+          <Rocket className="h-4 w-4 mr-2" /> Deploy
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="h-10 w-10">
+            <Button variant="outline" size="icon" className="h-10 w-10 ml-2">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -231,6 +287,20 @@ export const AgentCard = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </CardFooter>
+      
+      {/* Dialogs */}
+      <AgentEditDialog 
+        isOpen={showEditDialog} 
+        onClose={() => setShowEditDialog(false)} 
+        agent={agent as unknown as UserAgent}
+        onSave={handleEditSave}
+      />
+      <AgentDeployDialog
+        isOpen={showDeployDialog}
+        onClose={() => setShowDeployDialog(false)}
+        agent={agent as unknown as UserAgent}
+        onDeploy={handleDeploy}
+      />
     </Card>
   );
 };
