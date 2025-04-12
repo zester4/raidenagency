@@ -18,7 +18,6 @@ import NotFound from './pages/NotFound';
 import Pricing from './pages/Pricing';
 import Team from './pages/Team';
 import Analytics from './pages/Analytics';
-import Tools from './pages/dashboard/Tools';
 import './App.css';
 
 function App() {
@@ -42,7 +41,6 @@ function App() {
           <Route path="/dashboard/agents" element={<ProtectedRoute><AgentBuilder /></ProtectedRoute>} />
           <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/dashboard/pricing" element={<ProtectedRoute><DashboardPricing /></ProtectedRoute>} />
-          <Route path="/dashboard/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
           
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />

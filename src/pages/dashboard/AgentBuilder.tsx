@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -56,6 +57,7 @@ const AgentBuilder = () => {
   } = useAgents();
   const { currentPlan, isFreePlan } = useSubscription();
 
+  // Filter agents based on search query
   const filteredTemplates = templates.filter(template => 
     template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     template.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -67,6 +69,7 @@ const AgentBuilder = () => {
   );
 
   const handleCreateNewAgent = () => {
+    // Check subscription limits
     if (currentPlan && agents.length >= (currentPlan.limits?.max_agents || 0)) {
       toast({
         title: "Subscription limit reached",
@@ -86,6 +89,7 @@ const AgentBuilder = () => {
   };
 
   const handleUseTemplate = (templateId: string) => {
+    // Check subscription limits
     if (currentPlan && agents.length >= (currentPlan.limits?.max_agents || 0)) {
       toast({
         title: "Subscription limit reached",
@@ -108,15 +112,14 @@ const AgentBuilder = () => {
     }
   };
 
-  const handleCreateAgent = async (agentData) => {
-    const status = (agentData.status as 'online' | 'offline' | 'error') || 'offline';
+  const handleCreateAgent = async (agentData: Partial<UserAgent>) => {
+    if (!user) return;
     
     const newAgent = await createAgent({
       ...agentData,
-      status,
-      description: agentData.description || '',
-      user_id: user?.id || '',
-    });
+      user_id: user.id,
+      status: 'offline',
+    } as Omit<UserAgent, 'id' | 'created_at' | 'updated_at'>);
     
     if (newAgent) {
       setShowCreator(false);
@@ -124,12 +127,16 @@ const AgentBuilder = () => {
     }
   };
 
-  const handleUpdateAgent = async (id, agentData) => {
-    if (agentData.status) {
-      agentData.status = agentData.status as 'online' | 'offline' | 'error';
+  const handleEditAgent = async (agentId: string, updatedData?: Partial<UserAgent>) => {
+    if (updatedData) {
+      await updateAgent(agentId, updatedData);
+    } else {
+      toast({
+        title: "Edit agent",
+        description: "Agent editing functionality is now available.",
+        variant: "default",
+      });
     }
-    
-    await updateAgent(id, agentData);
   };
 
   const handleDeleteAgent = async (agentId: string) => {
@@ -174,6 +181,7 @@ const AgentBuilder = () => {
   return (
     <DashboardLayout>
       <div className="p-4 md:p-8">
+        {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-3">
             <BrainCircuit className="h-8 w-8 text-electric-blue" />
@@ -227,6 +235,7 @@ const AgentBuilder = () => {
           </div>
         ) : (
           <>
+            {/* Tabs */}
             <Tabs 
               defaultValue="my-agents" 
               value={selectedTab}
@@ -286,6 +295,7 @@ const AgentBuilder = () => {
                 </div>
               </div>
 
+              {/* My Agents Tab */}
               <TabsContent value="my-agents" className="mt-4">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-heading text-white">My Agents</h2>
@@ -340,7 +350,7 @@ const AgentBuilder = () => {
                           category: agent.category || 'general'
                         }}
                         viewMode={viewMode}
-                        onEdit={handleUpdateAgent}
+                        onEdit={handleEditAgent}
                         onDelete={handleDeleteAgent}
                         onToggleStatus={handleToggleAgentStatus}
                         onDeploy={handleDeployAgent}
@@ -350,6 +360,7 @@ const AgentBuilder = () => {
                 )}
               </TabsContent>
 
+              {/* Templates Tab */}
               <TabsContent value="templates" className="mt-4">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-heading text-white">Agent Templates</h2>
@@ -384,6 +395,7 @@ const AgentBuilder = () => {
                 )}
               </TabsContent>
 
+              {/* Marketplace Tab */}
               <TabsContent value="marketplace" className="mt-4">
                 <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
                   <CardContent className="flex flex-col items-center justify-center py-16">
@@ -400,6 +412,7 @@ const AgentBuilder = () => {
               </TabsContent>
             </Tabs>
 
+            {/* Features Section */}
             <div className="mt-12">
               <h2 className="text-2xl font-heading text-white mb-6">Agent Building Features</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

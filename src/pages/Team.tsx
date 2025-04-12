@@ -51,7 +51,7 @@ const Team = () => {
           name: 'Alex Chen',
           role: 'CEO & Founder',
           imageSrc: 'https://randomuser.me/api/portraits/men/32.jpg',
-          bio: "Former AI researcher at DeepMind with a passion for creating intelligent systems that augment human capabilities. Founded Raiden Agents to bring enterprise-grade AI agents to businesses of all sizes.",
+          bio: 'Former AI researcher at DeepMind with a passion for creating intelligent systems that augment human capabilities. Founded Raiden Agents to bring enterprise-grade AI agents to businesses of all sizes.',
           social: {
             linkedin: '#',
             twitter: '#',
@@ -64,7 +64,7 @@ const Team = () => {
           name: 'Sarah Johnson',
           role: 'COO',
           imageSrc: 'https://randomuser.me/api/portraits/women/44.jpg',
-          bio: "Operations expert with 15+ years experience scaling technology companies. Previously led operations at several successful AI startups before joining Raiden to build the infrastructure for the next generation of AI agents.",
+          bio: 'Operations expert with 15+ years experience scaling technology companies. Previously led operations at several successful AI startups before joining Raiden to build the infrastructure for the next generation of AI agents.',
           social: {
             linkedin: '#',
             twitter: '#',
