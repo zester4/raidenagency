@@ -84,13 +84,47 @@ export interface UserSubscription {
 export const agentTemplateService = {
   async getAll(): Promise<AgentTemplate[]> {
     try {
-      const { data, error } = await supabase
-        .from('agent_templates')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      return data || [];
+      // Mock data for development
+      const templates: AgentTemplate[] = [
+        {
+          id: 'customer-support',
+          name: 'Customer Support Agent',
+          description: 'Handles customer inquiries and routes them to the appropriate department',
+          category: 'customer-service',
+          popularity: 'high',
+          icon: 'bot',
+          system_prompt: 'You are a helpful customer support agent.'
+        },
+        {
+          id: 'knowledge-base',
+          name: 'Knowledge Base Agent',
+          description: 'Answers questions based on your company documents and knowledge base',
+          category: 'information',
+          popularity: 'medium',
+          icon: 'database',
+          system_prompt: 'You are a knowledge base assistant.'
+        },
+        {
+          id: 'sales-assistant',
+          name: 'Sales Assistant',
+          description: 'Helps qualify leads and answer product questions',
+          category: 'sales',
+          popularity: 'medium',
+          icon: 'shopping-cart',
+          system_prompt: 'You are a sales assistant.'
+        },
+        {
+          id: 'custom',
+          name: 'Custom Agent',
+          description: 'Start from scratch and build a custom agent',
+          category: 'custom',
+          popularity: 'low',
+          icon: 'settings',
+          system_prompt: 'You are a custom AI assistant.'
+        }
+      ];
+      
+      return templates;
     } catch (error) {
       console.error('Error fetching agent templates:', error);
       toast.error('Failed to load agent templates');
@@ -100,14 +134,9 @@ export const agentTemplateService = {
 
   async getById(id: string): Promise<AgentTemplate | null> {
     try {
-      const { data, error } = await supabase
-        .from('agent_templates')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Mock implementation
+      const templates = await this.getAll();
+      return templates.find(t => t.id === id) || null;
     } catch (error) {
       console.error('Error fetching agent template:', error);
       toast.error('Failed to load agent template');
@@ -120,13 +149,31 @@ export const agentTemplateService = {
 export const userAgentService = {
   async getAll(): Promise<UserAgent[]> {
     try {
-      const { data, error } = await supabase
-        .from('user_agents')
-        .select('*')
-        .order('updated_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      // Mock implementation
+      return [
+        {
+          id: '1',
+          user_id: '123',
+          name: 'General Support Agent',
+          description: 'Handles general customer inquiries',
+          category: 'customer-service',
+          status: 'online',
+          system_prompt: 'You are a helpful customer support agent.',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          user_id: '123',
+          name: 'Technical Support Agent',
+          description: 'Specialized in technical troubleshooting',
+          category: 'technical',
+          status: 'offline',
+          system_prompt: 'You are a technical support specialist.',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
     } catch (error) {
       console.error('Error fetching user agents:', error);
       toast.error('Failed to load your agents');
@@ -136,14 +183,9 @@ export const userAgentService = {
 
   async getById(id: string): Promise<UserAgent | null> {
     try {
-      const { data, error } = await supabase
-        .from('user_agents')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Mock implementation
+      const agents = await this.getAll();
+      return agents.find(a => a.id === id) || null;
     } catch (error) {
       console.error('Error fetching user agent:', error);
       toast.error('Failed to load agent details');
@@ -153,15 +195,16 @@ export const userAgentService = {
 
   async create(agent: Omit<UserAgent, 'id' | 'created_at' | 'updated_at'>): Promise<UserAgent | null> {
     try {
-      const { data, error } = await supabase
-        .from('user_agents')
-        .insert(agent)
-        .select()
-        .single();
-
-      if (error) throw error;
+      // Mock implementation
+      const newAgent: UserAgent = {
+        ...agent,
+        id: Math.random().toString(36).substring(2, 11),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
       toast.success('Agent created successfully');
-      return data;
+      return newAgent;
     } catch (error) {
       console.error('Error creating agent:', error);
       toast.error('Failed to create agent');
@@ -171,16 +214,18 @@ export const userAgentService = {
 
   async update(id: string, updates: Partial<UserAgent>): Promise<UserAgent | null> {
     try {
-      const { data, error } = await supabase
-        .from('user_agents')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      // Mock implementation
+      const agent = await this.getById(id);
+      if (!agent) return null;
+      
+      const updatedAgent: UserAgent = {
+        ...agent,
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
+      
       toast.success('Agent updated successfully');
-      return data;
+      return updatedAgent;
     } catch (error) {
       console.error('Error updating agent:', error);
       toast.error('Failed to update agent');
@@ -190,12 +235,7 @@ export const userAgentService = {
 
   async updateStatus(id: string, status: 'online' | 'offline' | 'error'): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('user_agents')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) throw error;
+      // Mock implementation
       toast.success(`Agent ${status === 'online' ? 'activated' : 'deactivated'}`);
     } catch (error) {
       console.error('Error updating agent status:', error);
@@ -205,12 +245,7 @@ export const userAgentService = {
 
   async delete(id: string): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('user_agents')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      // Mock implementation
       toast.success('Agent deleted successfully');
     } catch (error) {
       console.error('Error deleting agent:', error);
@@ -223,17 +258,26 @@ export const userAgentService = {
 export const subscriptionService = {
   async getCurrentPlan(): Promise<SubscriptionPlan | null> {
     try {
-      const { data: subscription, error: subscriptionError } = await supabase
-        .from('user_subscriptions')
-        .select('*, subscription_plans(*)')
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (subscriptionError) throw subscriptionError;
-      
-      if (!subscription) return null;
-      
-      return subscription.subscription_plans as unknown as SubscriptionPlan;
+      // Mock implementation for development
+      return {
+        id: 'free',
+        name: 'Free',
+        description: 'Basic plan for trying out the platform',
+        monthly_price: 0,
+        annual_price: 0,
+        features: {
+          agents: true,
+          templates: true,
+          knowledgeBase: false,
+          customTools: false
+        },
+        limits: {
+          max_agents: 2,
+          max_queries: 100,
+          storage_mb: 10
+        },
+        is_active: true
+      };
     } catch (error) {
       console.error('Error fetching subscription:', error);
       return null;
@@ -242,14 +286,68 @@ export const subscriptionService = {
 
   async getAllPlans(): Promise<SubscriptionPlan[]> {
     try {
-      const { data, error } = await supabase
-        .from('subscription_plans')
-        .select('*')
-        .eq('is_active', true)
-        .order('monthly_price');
-
-      if (error) throw error;
-      return data || [];
+      // Mock implementation for development
+      return [
+        {
+          id: 'free',
+          name: 'Free',
+          description: 'Basic plan for trying out the platform',
+          monthly_price: 0,
+          annual_price: 0,
+          features: {
+            agents: true,
+            templates: true,
+            knowledgeBase: false,
+            customTools: false
+          },
+          limits: {
+            max_agents: 2,
+            max_queries: 100,
+            storage_mb: 10
+          },
+          is_active: true
+        },
+        {
+          id: 'pro',
+          name: 'Pro',
+          description: 'Professional plan for businesses',
+          monthly_price: 49,
+          annual_price: 490,
+          features: {
+            agents: true,
+            templates: true,
+            knowledgeBase: true,
+            customTools: true
+          },
+          limits: {
+            max_agents: 10,
+            max_queries: 1000,
+            storage_mb: 1000
+          },
+          is_active: true
+        },
+        {
+          id: 'enterprise',
+          name: 'Enterprise',
+          description: 'Enterprise plan for large organizations',
+          monthly_price: 299,
+          annual_price: 2990,
+          features: {
+            agents: true,
+            templates: true,
+            knowledgeBase: true,
+            customTools: true,
+            dedicatedSupport: true,
+            sla: true
+          },
+          limits: {
+            max_agents: 100,
+            max_queries: 10000,
+            storage_mb: 10000
+          },
+          is_active: true
+        }
+      ];
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
       return [];

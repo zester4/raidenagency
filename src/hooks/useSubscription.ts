@@ -9,6 +9,8 @@ export function useSubscription() {
   const [allPlans, setAllPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function loadSubscriptionData() {
@@ -46,5 +48,9 @@ export function useSubscription() {
     error,
     isFreePlan: currentPlan?.name === 'Free',
     isPaidPlan: currentPlan?.name !== 'Free',
+    selectedModelId,
+    setSelectedModelId,
+    apiKeys,
+    setApiKeys
   };
 }

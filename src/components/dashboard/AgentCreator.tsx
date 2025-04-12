@@ -28,7 +28,8 @@ import {
   Check,
   Upload,
   BrainCircuit,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { UserAgent } from '@/lib/agent-service';

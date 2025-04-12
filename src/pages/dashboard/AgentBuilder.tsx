@@ -5,6 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Card, 
   CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +20,10 @@ import {
   Filter,
   Bot,
   Network,
-  Loader2
+  Loader2,
+  Database,
+  Wrench,
+  Layers
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -24,6 +31,7 @@ import { AgentTemplateCard } from '@/components/agent-builder/AgentTemplateCard'
 import { AgentCard } from '@/components/agent-builder/AgentCard';
 import { useToast } from "@/hooks/use-toast";
 import AgentCreator from '@/components/dashboard/AgentCreator';
+import ModelSelector from '@/components/dashboard/ModelSelector';
 import { useAgents } from '@/hooks/useAgents';
 import { useSubscription } from '@/hooks/useSubscription';
 import { UserAgent } from '@/lib/agent-service';
@@ -32,6 +40,7 @@ const AgentBuilder = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreator, setShowCreator] = useState(false);
+  const [showModelSelector, setShowModelSelector] = useState(false);
   const [selectedTab, setSelectedTab] = useState('my-agents');
   const { toast } = useToast();
   const { user } = useAuth();
@@ -69,6 +78,12 @@ const AgentBuilder = () => {
     }
     
     setShowCreator(true);
+    setShowModelSelector(false);
+  };
+
+  const handleConfigureModel = () => {
+    setShowModelSelector(true);
+    setShowCreator(false);
   };
 
   const handleUseTemplate = (templateId: string) => {
@@ -91,6 +106,7 @@ const AgentBuilder = () => {
       });
       
       setShowCreator(true);
+      setShowModelSelector(false);
     }
   };
 
@@ -150,18 +166,39 @@ const AgentBuilder = () => {
           <p className="text-muted-foreground">Create, manage, and deploy AI agents for your business</p>
           
           {currentPlan && (
-            <div className="mt-2 flex items-center">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <Badge variant={isFreePlan ? "outline" : "default"} className={isFreePlan ? "bg-gray-800/50" : "bg-electric-blue"}>
                 {currentPlan.name} Plan
               </Badge>
-              <span className="ml-2 text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 {agents.length} / {currentPlan.limits?.max_agents || 'Unlimited'} agents
               </span>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-auto"
+                onClick={handleConfigureModel}
+              >
+                <BrainCircuit className="mr-2 h-4 w-4" />
+                Configure AI Model
+              </Button>
             </div>
           )}
         </header>
 
-        {showCreator ? (
+        {showModelSelector ? (
+          <div className="mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowModelSelector(false)} 
+              className="mb-4"
+            >
+              Back to Agents
+            </Button>
+            <ModelSelector />
+          </div>
+        ) : showCreator ? (
           <div className="mb-6">
             <Button 
               variant="outline" 
@@ -350,7 +387,7 @@ const AgentBuilder = () => {
               </TabsContent>
             </Tabs>
 
-            {/* Features Section (keeping it simple for now) */}
+            {/* Features Section */}
             <div className="mt-12">
               <h2 className="text-2xl font-heading text-white mb-6">Agent Building Features</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
