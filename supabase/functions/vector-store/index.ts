@@ -6,7 +6,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.1";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") || "";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 
 // Create supabase client with service role
 const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -19,6 +19,7 @@ const corsHeaders = {
 /**
  * Vector Store Service
  * Handles document embedding and similarity search functionality
+ * using Google's Gemini embeddings
  */
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -53,37 +54,42 @@ serve(async (req) => {
       });
     }
 
-    // Check if OPENAI_API_KEY is available
-    if (!OPENAI_API_KEY) {
-      return new Response(JSON.stringify({ error: "OpenAI API key is not configured" }), {
+    // Check if GEMINI_API_KEY is available
+    if (!GEMINI_API_KEY) {
+      return new Response(JSON.stringify({ error: "Gemini API key is not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
-    // Function to generate embeddings using OpenAI
-    const generateEmbedding = async (text: string) => {
+    // Function to generate embeddings using Google's Gemini API
+    const generateGeminiEmbedding = async (text: string) => {
       try {
-        const response = await fetch('https://api.openai.com/v1/embeddings', {
+        const response = await fetch('https://generativelanguage.googleapis.com/v1/models/embedding-001:embedContent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENAI_API_KEY}`
+            'x-goog-api-key': GEMINI_API_KEY
           },
           body: JSON.stringify({
-            model: "text-embedding-3-small",
-            input: text
+            model: "embedding-001",
+            content: {
+              parts: [
+                { text }
+              ]
+            },
+            taskType: "RETRIEVAL_DOCUMENT"
           })
         });
         
         if (!response.ok) {
-          throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+          throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
-        return data.data[0].embedding;
+        return data.embedding.values;
       } catch (error) {
-        console.error('Error generating embedding:', error);
+        console.error('Error generating Gemini embedding:', error);
         throw error;
       }
     };
@@ -132,8 +138,8 @@ serve(async (req) => {
       }
 
       try {
-        // Generate embedding for document
-        const embedding = await generateEmbedding(document.content);
+        // Generate embedding for document using Gemini
+        const embedding = await generateGeminiEmbedding(document.content);
 
         // Store document and embedding
         const { data: newDocument, error: documentError } = await supabase
@@ -181,11 +187,10 @@ serve(async (req) => {
       }
 
       try {
-        // Generate embedding for query
-        const queryEmbedding = await generateEmbedding(query);
+        // Generate embedding for query using Gemini
+        const queryEmbedding = await generateGeminiEmbedding(query);
 
         // Perform similarity search
-        // This is a simple implementation - in production, you'd use pgvector or a dedicated vector DB
         const { data: documents, error: searchError } = await supabase
           .rpc("match_documents", {
             query_embedding: queryEmbedding,
