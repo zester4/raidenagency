@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -6,7 +7,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   Legend,
   PieChart,
   Pie,
@@ -16,17 +17,18 @@ import {
   Line,
   Label,
   LabelList,
+  TooltipProps
 } from 'recharts';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { Calendar } from 'lucide-react';
 import { DateRange } from "react-day-picker";
-import { Button } from "@/components/ui/button"
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { DateRangePicker } from "@/components/date-range-picker"
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { DateRangePicker } from "@/components/date-range-picker";
 
 interface AgentUsageData {
   agent_name: string;
@@ -53,7 +55,7 @@ const Analytics: React.FC = () => {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
-  })
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -128,6 +130,22 @@ const Analytics: React.FC = () => {
     }
   };
 
+  // Custom tooltip component for Recharts
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="tooltip-content bg-gray-800 p-2 rounded shadow">
+          <p className="label">{`${data.name || ''}: ${data.value || ''}`}</p>
+          {data.time && (
+            <p className="data">{`Date: ${new Date(data.time).toLocaleDateString()}`}</p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
@@ -192,19 +210,7 @@ const Analytics: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="tooltip-content bg-gray-800 p-2 rounded shadow">
-                              <p className="label">{`${data.name}: ${data.value}%`}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
+                    <RechartsTooltip content={<CustomTooltip />} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -220,20 +226,7 @@ const Analytics: React.FC = () => {
                     <YAxis>
                       <Label angle={-90} value="Users" position="insideLeft" style={{ textAnchor: 'middle' }} />
                     </YAxis>
-                    <Tooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="tooltip-content bg-gray-800 p-2 rounded shadow">
-                              <p className="label">{`${data.name}: ${data.value}`}</p>
-                              <p className="data">{`Date: ${new Date(data.time).toLocaleDateString()}`}</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
+                    <RechartsTooltip content={<CustomTooltip />} />
                     <Legend />
                     <Line type="monotone" dataKey="active_users" stroke="#8884d8" name="Active Users" />
                   </LineChart>
@@ -250,7 +243,7 @@ const Analytics: React.FC = () => {
                     <YAxis>
                       <Label angle={-90} value="Conversations" position="insideLeft" style={{ textAnchor: 'middle' }} />
                     </YAxis>
-                    <Tooltip />
+                    <RechartsTooltip content={<CustomTooltip />} />
                     <Legend />
                     <Bar dataKey="conversations" fill="#82ca9d" name="Conversations" />
                   </BarChart>

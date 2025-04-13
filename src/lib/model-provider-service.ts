@@ -254,7 +254,10 @@ export const saveUserApiKey = async (providerId: string, apiKey: string): Promis
       // Update existing key
       const { error: updateError } = await supabase
         .from('user_api_keys')
-        .update({ api_key: apiKey, updated_at: new Date().toISOString() })
+        .update({ 
+          api_key: apiKey, 
+          updated_at: new Date().toISOString() 
+        })
         .eq('id', existingKey.id);
 
       return !updateError;
