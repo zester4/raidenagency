@@ -528,7 +528,10 @@ const AgentBuilder = () => {
                           description: template.description,
                           icon: <Bot className="h-6 w-6 text-electric-blue" />,
                           category: template.category,
-                          popularity: template.popularity,
+                          popularity: typeof template.popularity === 'number' ? 
+                            (template.popularity > 90 ? 'high' : 
+                             template.popularity > 70 ? 'medium' : 'low') : 
+                            'medium',
                           onUse: handleUseTemplate
                         }}
                       />
