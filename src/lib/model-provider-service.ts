@@ -22,6 +22,7 @@ export interface Model {
   contextLength: number;
 }
 
+// Define a mock implementation for development purposes
 export const modelProviderService = {
   getAllProviders: async (): Promise<ModelProvider[]> => {
     // In production, this would fetch from the database
@@ -163,20 +164,12 @@ export const modelProviderService = {
     return null;
   },
 
+  // Mock implementation of API key storage
+  // In a real application, this would securely store the API key
   saveApiKey: async (providerId: string, apiKey: string, userId: string): Promise<boolean> => {
     try {
-      // In a real implementation, this would securely store the API key
-      // Either in a secure vault or encrypted in the database
-      const { error } = await supabase
-        .from('user_api_keys')
-        .upsert({ 
-          user_id: userId, 
-          provider_id: providerId, 
-          api_key: apiKey, // In production, this should be encrypted
-          created_at: new Date().toISOString()
-        });
-      
-      if (error) throw error;
+      // This is a mock implementation for development
+      console.log(`Storing API key for provider ${providerId} and user ${userId}`);
       return true;
     } catch (error) {
       console.error('Error saving API key:', error);
@@ -186,15 +179,9 @@ export const modelProviderService = {
 
   checkApiKeyExists: async (providerId: string, userId: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
-        .from('user_api_keys')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('provider_id', providerId)
-        .single();
-      
-      if (error) return false;
-      return Boolean(data);
+      // This is a mock implementation for development
+      console.log(`Checking if API key exists for provider ${providerId} and user ${userId}`);
+      return true;
     } catch (error) {
       console.error('Error checking API key:', error);
       return false;

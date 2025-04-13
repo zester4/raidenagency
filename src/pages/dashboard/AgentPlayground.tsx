@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -44,7 +43,6 @@ const AgentPlayground = () => {
     
     const loadAgentAndModels = async () => {
       try {
-        // Load models
         const providers = await modelProviderService.getAllProviders();
         let allModels: any[] = [];
         providers.forEach(provider => {
@@ -59,7 +57,6 @@ const AgentPlayground = () => {
         });
         setAvailableModels(allModels);
         
-        // If agent ID is present, load agent
         if (agentId) {
           const agentData = await userAgentService.getAgentById(agentId);
           if (agentData) {
@@ -81,7 +78,6 @@ const AgentPlayground = () => {
             });
           }
         } else if (agents && agents.length > 0) {
-          // If no agent ID, load the first agent from the list
           setAgent(agents[0]);
           if (agents[0].model_config) {
             setModelSettings({
@@ -168,7 +164,6 @@ const AgentPlayground = () => {
   const handleVectorStoreUpdate = (count: number) => {
     if (!agent) return;
     
-    // Update agent with new document count
     setAgent(prev => {
       if (!prev) return prev;
       return {
@@ -228,7 +223,7 @@ const AgentPlayground = () => {
                         <Bot className="h-4 w-4 text-electric-blue" />
                         <span>{a.name}</span>
                         <Badge 
-                          variant={a.status === 'online' ? 'success' : a.status === 'error' ? 'destructive' : 'outline'}
+                          variant={a.status === 'online' ? 'default' : a.status === 'error' ? 'destructive' : 'outline'}
                           className="ml-2"
                         >
                           {a.status}
