@@ -14,17 +14,52 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ date, onSelect }: DateRangePickerProps) {
+  // Format a date safely, handling potential invalid dates
+  const formatDateSafe = (date: Date | undefined): string => {
+    if (!date || isNaN(date.getTime())) {
+      return "Pick a date";
+    }
+    return format(date, "PPP");
+  };
+
   return (
     <div className="grid gap-2">
-      <Calendar
-        initialFocus
-        mode="range"
-        defaultMonth={date?.from}
-        selected={date as any}
-        onSelect={onSelect as any}
-        numberOfMonths={2}
-        className={cn("p-3 pointer-events-auto")}
-      />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date?.from ? (
+              date.to ? (
+                <>
+                  {formatDateSafe(date.from)} - {formatDateSafe(date.to)}
+                </>
+              ) : (
+                formatDateSafe(date.from)
+              )
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={date?.from}
+            selected={date as any}
+            onSelect={onSelect as any}
+            numberOfMonths={2}
+            className={cn("p-3 pointer-events-auto")}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

@@ -14,15 +14,39 @@ export function formatNumber(num: number): string {
 // Format date to locale string
 export function formatDate(date: Date | string | null, options?: Intl.DateTimeFormatOptions): string {
   if (!date) return 'N/A';
-  const parsedDate = typeof date === 'string' ? new Date(date) : date;
-  return parsedDate.toLocaleDateString(undefined, options);
+  
+  try {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if date is valid
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid date';
+    }
+    
+    return parsedDate.toLocaleDateString(undefined, options);
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Invalid date';
+  }
 }
 
 // Format time to locale string
 export function formatTime(date: Date | string | null, options?: Intl.DateTimeFormatOptions): string {
   if (!date) return 'N/A';
-  const parsedDate = typeof date === 'string' ? new Date(date) : date;
-  return parsedDate.toLocaleTimeString(undefined, options);
+  
+  try {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if date is valid
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid time';
+    }
+    
+    return parsedDate.toLocaleTimeString(undefined, options);
+  } catch (error) {
+    console.error('Error formatting time:', error);
+    return 'Invalid time';
+  }
 }
 
 // Truncate text with ellipsis
