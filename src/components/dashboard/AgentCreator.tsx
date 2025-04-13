@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -48,7 +47,6 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Templates for different agent types
   const templates = [
     {
       id: 'customer-support',
@@ -73,9 +71,7 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
     },
   ];
 
-  // Handler for next step
   const handleNextStep = () => {
-    // Validate current step
     if (step === 1 && !agentName.trim()) {
       toast({
         title: "Missing information",
@@ -94,11 +90,9 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
       return;
     }
 
-    // If validation passes, go to next step
     if (step < 4) {
       setStep(step + 1);
       
-      // If moving from step 2 to 3 and a template is selected, set the system prompt
       if (step === 2 && selectedTemplate) {
         const template = templates.find(t => t.id === selectedTemplate);
         if (template && !systemPrompt) {
@@ -108,25 +102,21 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
     }
   };
 
-  // Handler for previous step
   const handlePreviousStep = () => {
     if (step > 1) {
       setStep(step - 1);
     }
   };
 
-  // Handle template selection
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
     
-    // Set the system prompt from the template
     const template = templates.find(t => t.id === templateId);
     if (template) {
       setSystemPrompt(template.systemPrompt);
     }
   };
 
-  // Handle create agent
   const handleCreateAgent = async () => {
     if (!agentName.trim()) {
       toast({
@@ -146,9 +136,13 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
           description: agentDescription,
           category: selectedTemplate === 'custom' ? 'custom' : selectedTemplate,
           system_prompt: systemPrompt,
-          config: {
-            template: selectedTemplate,
-            created_at_step: 4,
+          model_config: {
+            model: "gpt-4o",
+            temperature: 0.7,
+            max_tokens: 4096,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+            top_p: 1
           }
         });
       } else {
@@ -193,7 +187,6 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
       </CardHeader>
 
       <CardContent>
-        {/* Step 1: Basic Information */}
         {step === 1 && (
           <div className="space-y-4">
             <div className="space-y-2">
@@ -229,7 +222,6 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
           </div>
         )}
 
-        {/* Step 2: Template Selection */}
         {step === 2 && (
           <div className="space-y-4">
             <p className="text-sm text-gray-400 mb-4">
@@ -270,7 +262,6 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
           </div>
         )}
 
-        {/* Step 3: Knowledge Base */}
         {step === 3 && (
           <div className="space-y-6">
             <div className="space-y-2">
@@ -303,7 +294,6 @@ const AgentCreator: React.FC<AgentCreatorProps> = ({ onCreateAgent }) => {
           </div>
         )}
 
-        {/* Step 4: Tools and Integrations */}
         {step === 4 && (
           <div className="space-y-6">
             <p className="text-sm text-gray-400 mb-4">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,6 +43,11 @@ interface AgentCardProps {
   onDelete?: (agentId: string) => Promise<void>;
   onToggleStatus?: (agentId: string, currentStatus: 'online' | 'offline' | 'error') => Promise<void>;
   onDeploy?: (agentId: string, deployment: any) => Promise<void>;
+  extraActions?: Array<{
+    label: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+  }>;
 }
 
 export const AgentCard = ({ 
@@ -52,7 +56,8 @@ export const AgentCard = ({
   onEdit, 
   onDelete, 
   onToggleStatus,
-  onDeploy
+  onDeploy,
+  extraActions = []
 }: AgentCardProps) => {
   const { toast } = useToast();
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -140,6 +145,27 @@ export const AgentCard = ({
     });
   };
 
+  const renderExtraActions = () => {
+    if (extraActions && extraActions.length > 0) {
+      return (
+        <>
+          {extraActions.map((action, index) => (
+            <DropdownMenuItem 
+              key={`extra-action-${index}`} 
+              className="hover:bg-gray-800 cursor-pointer" 
+              onClick={action.onClick}
+            >
+              {action.icon && <span className="mr-2">{action.icon}</span>}
+              {action.label}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator className="bg-gray-800" />
+        </>
+      );
+    }
+    return null;
+  };
+
   if (viewMode === 'list') {
     return (
       <Card className="border-gray-800 bg-black/20 backdrop-blur-sm hover:border-electric-blue/50 transition-all">
@@ -191,6 +217,7 @@ export const AgentCard = ({
                 <DropdownMenuContent className="bg-gray-900 border-gray-700 text-white">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-gray-800" />
+                  {renderExtraActions()}
                   <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer" onClick={handleDuplicate}>
                     <Copy className="mr-2 h-4 w-4" /> Duplicate
                   </DropdownMenuItem>
@@ -267,6 +294,7 @@ export const AgentCard = ({
           <DropdownMenuContent className="bg-gray-900 border-gray-700 text-white">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-gray-800" />
+            {renderExtraActions()}
             <DropdownMenuItem className="hover:bg-gray-800 cursor-pointer" onClick={handleToggleStatus}>
               {agent.status === 'online' ? 
                 <PauseCircle className="mr-2 h-4 w-4" /> : 

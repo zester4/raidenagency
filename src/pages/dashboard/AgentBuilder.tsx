@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
@@ -484,7 +483,7 @@ const AgentBuilder = () => {
                         viewMode={viewMode}
                         onEdit={handleEditAgent}
                         onDelete={handleDeleteAgent}
-                        onToggleStatus={handleToggleStatus}
+                        onToggleStatus={handleToggleAgentStatus}
                         onDeploy={handleDeployAgent}
                         extraActions={[
                           {
