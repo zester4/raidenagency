@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface VectorStoreInterfaceProps {
   agentId: string;
   collectionName: string;
+  documentCount?: number;
   onDocumentsUpdated?: (count: number) => void;
 }
 
@@ -33,6 +34,7 @@ interface Document {
 const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
   agentId,
   collectionName,
+  documentCount,
   onDocumentsUpdated
 }) => {
   const { toast } = useToast();
