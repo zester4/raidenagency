@@ -49,6 +49,45 @@ export function formatTime(date: Date | string | null, options?: Intl.DateTimeFo
   }
 }
 
+// Format date and time together
+export function formatDateTime(date: Date | string | null, options?: Intl.DateTimeFormatOptions): string {
+  if (!date) return 'N/A';
+  
+  try {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if date is valid
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid datetime';
+    }
+    
+    const defaultOptions: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    
+    return parsedDate.toLocaleString(undefined, options || defaultOptions);
+  } catch (error) {
+    console.error('Error formatting datetime:', error);
+    return 'Invalid datetime';
+  }
+}
+
+// Check if a date is valid
+export function isValidDate(date: Date | string | null): boolean {
+  if (!date) return false;
+  
+  try {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    return !isNaN(parsedDate.getTime());
+  } catch (error) {
+    return false;
+  }
+}
+
 // Truncate text with ellipsis
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;

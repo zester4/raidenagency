@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import { DateRange } from "@/types/date-range";
+import { DateRange, isValidDateRange } from "@/types/date-range";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -53,7 +53,7 @@ export function DateRangePicker({ date, onSelect }: DateRangePickerProps) {
             initialFocus
             mode="range"
             defaultMonth={date?.from}
-            selected={date as any}
+            selected={isValidDateRange(date) ? date as any : undefined}
             onSelect={onSelect as any}
             numberOfMonths={2}
             className={cn("p-3 pointer-events-auto")}
