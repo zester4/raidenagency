@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
@@ -65,6 +66,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
+    // Move the hook inside the component function
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
