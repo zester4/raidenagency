@@ -1,55 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Label,
-  LabelList,
-  TooltipProps
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Label } from 'recharts';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { Calendar } from 'lucide-react';
-import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRangePicker } from "@/components/date-range-picker";
-import { DatabaseFunctions } from '@/types/database';
 
-interface AgentUsageData {
-  agent_name: string;
-  usage_count: number;
-}
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884d8'
+];
 
-interface DailyActiveUsers {
-  time: string;
-  active_users: number;
-}
-
-interface ConversationData {
-  time: string;
-  conversations: number;
-}
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-
-const Analytics: React.FC = () => {
-  const [agentUsage, setAgentUsage] = useState<AgentUsageData[]>([]);
-  const [dailyActiveUsers, setDailyActiveUsers] = useState<DailyActiveUsers[]>([]);
-  const [conversationData, setConversationData] = useState<ConversationData[]>([]);
+const Analytics = () => {
+  const [agentUsage, setAgentUsage] = useState([]);
+  const [dailyActiveUsers, setDailyActiveUsers] = useState([]);
+  const [conversationData, setConversationData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
@@ -67,36 +39,65 @@ const Analytics: React.FC = () => {
       const fromDate = date?.from?.toISOString().split('T')[0];
       const toDate = date?.to?.toISOString().split('T')[0];
 
-      // Mock data for now until we create the necessary database functions
-      setAgentUsage([
-        { agent_name: 'Customer Support', usage_count: 45 },
-        { agent_name: 'Knowledge Base', usage_count: 30 },
-        { agent_name: 'Sales Assistant', usage_count: 25 }
-      ]);
-      
-      setDailyActiveUsers(Array.from({ length: 30 }, (_, i) => ({
-        time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        active_users: Math.floor(Math.random() * 100) + 50
-      })));
-      
-      setConversationData(Array.from({ length: 30 }, (_, i) => ({
-        time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        conversations: Math.floor(Math.random() * 200) + 100
-      })));
+      const { data: agentUsageData, error: agentUsageError } = await supabase.rpc('get_agent_usage', {
+        from_date: fromDate,
+        to_date: toDate
+      });
 
+      if (agentUsageError) {
+        console.error("Error fetching agent usage data:", agentUsageError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch agent usage data",
+          variant: "destructive"
+        });
+      } else {
+        setAgentUsage(agentUsageData || []);
+      }
+
+      const { data: dailyActiveUsersData, error: dailyActiveUsersError } = await supabase.rpc('get_daily_active_users', {
+        from_date: fromDate,
+        to_date: toDate
+      });
+
+      if (dailyActiveUsersError) {
+        console.error("Error fetching daily active users:", dailyActiveUsersError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch daily active users",
+          variant: "destructive"
+        });
+      } else {
+        setDailyActiveUsers(dailyActiveUsersData || []);
+      }
+
+      const { data: conversationDataData, error: conversationDataError } = await supabase.rpc('get_daily_conversations', {
+        from_date: fromDate,
+        to_date: toDate
+      });
+
+      if (conversationDataError) {
+        console.error("Error fetching conversation data:", conversationDataError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch conversation data",
+          variant: "destructive"
+        });
+      } else {
+        setConversationData(conversationDataData || []);
+      }
     } catch (error) {
       console.error("Unexpected error fetching analytics data:", error);
       toast({
         title: "Error",
         description: "Failed to fetch analytics data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Custom tooltip component for Recharts
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -157,7 +158,6 @@ const Analytics: React.FC = () => {
             <div className="text-center py-4">Loading analytics data...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Agent Usage Chart */}
               <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-4">Agent Usage</h3>
                 <ResponsiveContainer width="100%" height={300}>
@@ -176,13 +176,12 @@ const Analytics: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <RechartsTooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Daily Active Users Chart */}
               <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-4">Daily Active Users</h3>
                 <ResponsiveContainer width="100%" height={300}>
@@ -192,14 +191,13 @@ const Analytics: React.FC = () => {
                     <YAxis>
                       <Label angle={-90} value="Users" position="insideLeft" style={{ textAnchor: 'middle' }} />
                     </YAxis>
-                    <RechartsTooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend />
                     <Line type="monotone" dataKey="active_users" stroke="#8884d8" name="Active Users" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Daily Conversations Chart */}
               <div className="bg-black/40 border border-gray-800 rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-4">Daily Conversations</h3>
                 <ResponsiveContainer width="100%" height={300}>
@@ -209,7 +207,7 @@ const Analytics: React.FC = () => {
                     <YAxis>
                       <Label angle={-90} value="Conversations" position="insideLeft" style={{ textAnchor: 'middle' }} />
                     </YAxis>
-                    <RechartsTooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend />
                     <Bar dataKey="conversations" fill="#82ca9d" name="Conversations" />
                   </BarChart>

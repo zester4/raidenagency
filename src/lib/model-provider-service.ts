@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserApiKey } from '@/types/database';
@@ -221,9 +222,19 @@ export const getUserApiKey = async (providerId: string): Promise<string | null> 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
-    // Mock implementation since we don't have the table yet
-    console.log(`Getting API key for provider ${providerId}`);
-    return null;
+    const { data, error } = await supabase
+      .from('user_api_keys')
+      .select('api_key')
+      .eq('user_id', user.id)
+      .eq('provider_id', providerId)
+      .single();
+
+    if (error || !data) {
+      console.error('Error fetching user API key:', error);
+      return null;
+    }
+
+    return data.api_key;
   } catch (error) {
     console.error('Error fetching user API key:', error);
     return null;
@@ -236,9 +247,46 @@ export const saveUserApiKey = async (providerId: string, apiKey: string): Promis
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
 
-    // Mock implementation since we don't have the table yet
-    console.log(`Saving API key for provider ${providerId}`);
-    return true;
+    // Check if an API key already exists for this provider
+    const { data: existingKey } = await supabase
+      .from('user_api_keys')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('provider_id', providerId)
+      .single();
+
+    if (existingKey) {
+      // Update existing key
+      const { data, error } = await supabase
+        .from('user_api_keys')
+        .update({ 
+          api_key: apiKey, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', existingKey.id);
+
+      if (error) {
+        console.error('Error updating user API key:', error);
+        return false;
+      }
+      return true;
+    } else {
+      // Insert new key
+      const { data, error } = await supabase
+        .from('user_api_keys')
+        .insert({
+          user_id: user.id,
+          provider_id: providerId,
+          api_key: apiKey,
+          created_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Error saving user API key:', error);
+        return false;
+      }
+      return true;
+    }
   } catch (error) {
     console.error('Error saving user API key:', error);
     return false;
@@ -251,8 +299,16 @@ export const deleteUserApiKey = async (providerId: string): Promise<boolean> => 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
 
-    // Mock implementation since we don't have the table yet
-    console.log(`Deleting API key for provider ${providerId}`);
+    const { error } = await supabase
+      .from('user_api_keys')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('provider_id', providerId);
+
+    if (error) {
+      console.error('Error deleting user API key:', error);
+      return false;
+    }
     return true;
   } catch (error) {
     console.error('Error deleting user API key:', error);
@@ -266,8 +322,17 @@ export const getUserApiKeyProviders = async (): Promise<string[]> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    // Mock implementation since we don't have the table yet
-    return [];
+    const { data, error } = await supabase
+      .from('user_api_keys')
+      .select('provider_id')
+      .eq('user_id', user.id);
+
+    if (error || !data) {
+      console.error('Error fetching user API key providers:', error);
+      return [];
+    }
+
+    return data.map(row => row.provider_id);
   } catch (error) {
     console.error('Error fetching user API key providers:', error);
     return [];

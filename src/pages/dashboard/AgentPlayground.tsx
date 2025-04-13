@@ -38,6 +38,7 @@ import {
 import AgentWorkflowVisualizer from '@/components/agent-builder/AgentWorkflowVisualizer';
 import VectorStoreInterface from '@/components/agent-builder/VectorStoreInterface';
 import { WorkflowTemplate } from '@/lib/agent-workflow-templates';
+import { UserAgent } from '@/lib/agent-service';
 
 interface Message {
   id: string;
@@ -143,7 +144,18 @@ const AgentPlayground: React.FC = () => {
   const fetchMessages = async (agentId: string) => {
     try {
       console.log(`Fetching messages for agent ${agentId}`);
-      setMessages([]);
+      const { data, error } = await supabase
+        .from('agent_conversations')
+        .select('*')
+        .eq('agent_id', agentId)
+        .order('timestamp', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return;
+      }
+      
+      setMessages(data || []);
     } catch (error) {
       console.error('Error in fetchMessages:', error);
     }

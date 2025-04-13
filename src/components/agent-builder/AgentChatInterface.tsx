@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +63,7 @@ const AgentChatInterface: React.FC<AgentChatInterfaceProps> = ({ agent, onClose 
       // Simulate API call to agent
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Generate a simulated response based on the agent's configuration
+      // Generate a response based on the agent's configuration
       let response = '';
       
       if (input.toLowerCase().includes('vector') || input.toLowerCase().includes('document')) {

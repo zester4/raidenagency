@@ -18,6 +18,23 @@ export interface AgentConversation {
   agentName?: string;
 }
 
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  monthly_price: number;
+  annual_price: number;
+  features: any;
+  limits: any;
+  is_active: boolean;
+}
+
+export interface VectorStore {
+  enabled: boolean;
+  collection_name?: string;
+  document_count?: number;
+}
+
 export interface DatabaseFunctions {
   get_agent_usage: (args: { from_date: string, to_date: string }) => Promise<{ agent_name: string, usage_count: number }[]>;
   get_daily_active_users: (args: { from_date: string, to_date: string }) => Promise<{ time: string, active_users: number }[]>;
