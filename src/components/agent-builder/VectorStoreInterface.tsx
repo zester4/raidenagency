@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Database, Upload, Loader2, Search, FileText, File, Trash2, Globe, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+
+const SUPABASE_URL = supabase.supabaseUrl;
 
 interface VectorStoreInterfaceProps {
   agentId: string;
@@ -45,7 +46,6 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Fetch documents when component mounts
   useEffect(() => {
     fetchDocuments();
   }, [agentId, collectionName]);
@@ -92,7 +92,6 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
         }));
         setDocuments(formattedDocs);
         
-        // Update document count
         if (onDocumentsUpdated) {
           onDocumentsUpdated(formattedDocs.length);
         }
@@ -231,7 +230,6 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
             }
           };
           
-          // Read text files as text, others as data URLs
           if (file.type.includes('text/') || 
               file.name.endsWith('.txt') || 
               file.name.endsWith('.md')) {
@@ -284,7 +282,6 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
       if (response.ok) {
         setDocuments(prev => prev.filter(doc => doc.id !== id));
         
-        // Update document count
         if (onDocumentsUpdated) {
           onDocumentsUpdated(documents.length - 1);
         }
