@@ -181,7 +181,7 @@ let builder = new StateGraph(StateAnnotation)
   .addNode("billing_support", billingSupport)
   .addNode("technical_support", technicalSupport)
   .addNode("handle_refund", handleRefund)
-  .addEdge("_start_", "initial_support");
+  .addEdge("__start__", "initial_support");
 
 // Add conditional edges for initial support routing
 builder = builder.addConditionalEdges("initial_support", async (state: typeof StateAnnotation.State) => {
@@ -195,23 +195,23 @@ builder = builder.addConditionalEdges("initial_support", async (state: typeof St
 }, {
   billing: "billing_support",
   technical: "technical_support",
-  conversational: "_end_",
+  conversational: "__end__",
 });
 
 // Add edges for technical support and billing support
 builder = builder
-  .addEdge("technical_support", "_end_")
+  .addEdge("technical_support", "__end__")
   .addConditionalEdges("billing_support", async (state) => {
     if (state.nextRepresentative.includes("REFUND")) {
       return "refund";
     } else {
-      return "_end_";
+      return "__end__";
     }
   }, {
     refund: "handle_refund",
-    _end: "end_",
+    __end: "__end__",
   })
-  .addEdge("handle_refund", "_end_");
+  .addEdge("handle_refund", "__end__");
 
 // Compile the graph
 const checkpointer = new MemorySaver();

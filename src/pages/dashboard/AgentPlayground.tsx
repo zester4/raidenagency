@@ -395,7 +395,7 @@ const AgentPlayground: React.FC = () => {
                         {selectedAgent.vector_store?.enabled && (
                           <div className="flex items-center gap-2 text-sm text-electric-blue">
                             <Database className="h-4 w-4" />
-                            Vector store: {selectedAgent.vector_store.document_count} documents
+                            Vector store: {selectedAgent.vector_store.document_count || 0} documents
                           </div>
                         )}
                       </div>

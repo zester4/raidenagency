@@ -7,6 +7,8 @@ export const ModelProviders = {
   GOOGLE: 'google',
   COHERE: 'cohere',
   TOGETHER: 'together',
+  GROQ: 'groq',
+  DEEPSEEK: 'deepseek',
   CUSTOM: 'custom'
 } as const;
 
@@ -27,7 +29,9 @@ export const modelSchema = z.object({
     ModelProviders.ANTHROPIC, 
     ModelProviders.GOOGLE, 
     ModelProviders.COHERE, 
-    ModelProviders.TOGETHER, 
+    ModelProviders.TOGETHER,
+    ModelProviders.GROQ,
+    ModelProviders.DEEPSEEK,
     ModelProviders.CUSTOM
   ]),
   type: z.enum([ModelTypes.CHAT, ModelTypes.COMPLETION, ModelTypes.EMBEDDING]),
@@ -39,7 +43,8 @@ export const modelSchema = z.object({
   }),
   capabilities: z.array(z.string()),
   hasVision: z.boolean().default(false),
-  hasFunctionCalling: z.boolean().default(false)
+  hasFunctionCalling: z.boolean().default(false),
+  isFree: z.boolean().default(false)
 });
 
 export type Model = z.infer<typeof modelSchema>;
@@ -59,7 +64,8 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'vision', 'code', 'function-calling'],
     hasVision: true,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
   },
   {
     id: 'gpt-4o-mini',
@@ -74,7 +80,8 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'vision', 'code', 'function-calling'],
     hasVision: true,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
   },
   {
     id: 'gpt-3.5-turbo',
@@ -89,7 +96,8 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'code', 'function-calling'],
     hasVision: false,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
   },
   
   // Anthropic Models
@@ -106,10 +114,11 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'vision', 'code'],
     hasVision: true,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
   },
   {
-    id: 'claude-3-5-sonnet-20240620',
+    id: 'claude-3.5-sonnet-20240620',
     name: 'Claude 3.5 Sonnet',
     provider: ModelProviders.ANTHROPIC,
     type: ModelTypes.CHAT,
@@ -121,10 +130,11 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'vision', 'code'],
     hasVision: true,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
   },
   {
-    id: 'claude-3-7-sonnet',
+    id: 'claude-3.7-sonnet',
     name: 'Claude 3.7 Sonnet',
     provider: ModelProviders.ANTHROPIC,
     type: ModelTypes.CHAT,
@@ -136,7 +146,8 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'vision', 'code'],
     hasVision: true,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
   },
   
   // Google Models
@@ -153,7 +164,24 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'vision', 'code'],
     hasVision: true,
-    hasFunctionCalling: true
+    hasFunctionCalling: true,
+    isFree: false
+  },
+  {
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
+    provider: ModelProviders.GOOGLE,
+    type: ModelTypes.CHAT,
+    contextWindow: 1000000,
+    trainingCutoff: '2024-04',
+    pricing: {
+      input: 0.0025,
+      output: 0.0075
+    },
+    capabilities: ['chat', 'reasoning', 'vision', 'code'],
+    hasVision: true,
+    hasFunctionCalling: true,
+    isFree: false
   },
   
   // Together Models
@@ -169,7 +197,8 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'code'],
     hasVision: false,
-    hasFunctionCalling: false
+    hasFunctionCalling: false,
+    isFree: false
   },
   {
     id: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
@@ -183,7 +212,57 @@ export const availableModels: Model[] = [
     },
     capabilities: ['chat', 'reasoning', 'code'],
     hasVision: false,
-    hasFunctionCalling: false
+    hasFunctionCalling: false,
+    isFree: false
+  },
+  {
+    id: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+    name: 'Mixtral 8x7B Instruct',
+    provider: ModelProviders.TOGETHER,
+    type: ModelTypes.CHAT,
+    contextWindow: 32000,
+    pricing: {
+      input: 0.0006,
+      output: 0.0006
+    },
+    capabilities: ['chat', 'reasoning', 'code'],
+    hasVision: false,
+    hasFunctionCalling: false,
+    isFree: false
+  },
+  
+  // Groq Models
+  {
+    id: 'llama-3.3-70b-versatile',
+    name: 'Llama 3.3 70B Versatile',
+    provider: ModelProviders.GROQ,
+    type: ModelTypes.CHAT,
+    contextWindow: 128000,
+    pricing: {
+      input: 0.0007,
+      output: 0.0007
+    },
+    capabilities: ['chat', 'reasoning', 'code'],
+    hasVision: false,
+    hasFunctionCalling: true,
+    isFree: false
+  },
+  
+  // DeepSeek Models
+  {
+    id: 'deepseek-reasoner',
+    name: 'DeepSeek Reasoner',
+    provider: ModelProviders.DEEPSEEK,
+    type: ModelTypes.CHAT,
+    contextWindow: 32000,
+    pricing: {
+      input: 0.0005,
+      output: 0.0005
+    },
+    capabilities: ['chat', 'reasoning', 'code'],
+    hasVision: false,
+    hasFunctionCalling: false,
+    isFree: true
   }
 ];
 
@@ -197,4 +276,8 @@ export const getModelsByProvider = (provider: string): Model[] => {
 
 export const getModelsByCapability = (capability: string): Model[] => {
   return availableModels.filter(model => model.capabilities.includes(capability));
+};
+
+export const getFreeModels = (): Model[] => {
+  return availableModels.filter(model => model.isFree === true);
 };

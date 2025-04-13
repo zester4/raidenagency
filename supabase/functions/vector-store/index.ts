@@ -7,6 +7,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
+const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY") || GEMINI_API_KEY; // Fallback to GEMINI_API_KEY
 
 // Create supabase client with service role
 const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
@@ -54,22 +55,24 @@ serve(async (req) => {
       });
     }
 
-    // Check if GEMINI_API_KEY is available
-    if (!GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ error: "Gemini API key is not configured" }), {
+    // Check if embedding API key is available
+    const apiKey = GOOGLE_API_KEY || GEMINI_API_KEY;
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "Google/Gemini API key is not configured" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
-    // Function to generate embeddings using Google's Gemini API
-    const generateGeminiEmbedding = async (text: string) => {
+    // Function to generate embeddings using Google's Gemini or Google API
+    const generateEmbedding = async (text: string) => {
       try {
+        // First try Gemini embedding API
         const response = await fetch('https://generativelanguage.googleapis.com/v1/models/embedding-001:embedContent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-goog-api-key': GEMINI_API_KEY
+            'x-goog-api-key': apiKey
           },
           body: JSON.stringify({
             model: "embedding-001",
@@ -83,13 +86,13 @@ serve(async (req) => {
         });
         
         if (!response.ok) {
-          throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+          throw new Error(`Embedding API error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
         return data.embedding.values;
       } catch (error) {
-        console.error('Error generating Gemini embedding:', error);
+        console.error('Error generating embedding:', error);
         throw error;
       }
     };
@@ -99,6 +102,7 @@ serve(async (req) => {
       .from("agent_vector_collections")
       .select("*")
       .eq("name", collection_name)
+      .eq("agent_id", agent_id)
       .single();
 
     if (collectionsError && collectionsError.code !== 'PGRST116') {
@@ -138,8 +142,8 @@ serve(async (req) => {
       }
 
       try {
-        // Generate embedding for document using Gemini
-        const embedding = await generateGeminiEmbedding(document.content);
+        // Generate embedding for document
+        const embedding = await generateEmbedding(document.content);
 
         // Store document and embedding
         const { data: newDocument, error: documentError } = await supabase
@@ -160,6 +164,35 @@ serve(async (req) => {
             status: 500,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
+        }
+
+        // Update document count in agent settings if this is a new document
+        try {
+          const { data: agentData, error: agentError } = await supabase
+            .from("user_agents")
+            .select("vector_store")
+            .eq("id", agent_id)
+            .single();
+          
+          if (!agentError && agentData) {
+            const currentVectorStore = agentData.vector_store || {};
+            const documentCount = currentVectorStore.document_count || 0;
+            
+            await supabase
+              .from("user_agents")
+              .update({
+                vector_store: {
+                  ...currentVectorStore,
+                  enabled: true,
+                  collection_name,
+                  document_count: documentCount + 1
+                }
+              })
+              .eq("id", agent_id);
+          }
+        } catch (countError) {
+          console.error("Error updating document count:", countError);
+          // Non-critical error, continue
         }
 
         return new Response(JSON.stringify({
@@ -187,8 +220,8 @@ serve(async (req) => {
       }
 
       try {
-        // Generate embedding for query using Gemini
-        const queryEmbedding = await generateGeminiEmbedding(query);
+        // Generate embedding for query
+        const queryEmbedding = await generateEmbedding(query);
 
         // Perform similarity search
         const { data: documents, error: searchError } = await supabase
@@ -228,47 +261,124 @@ serve(async (req) => {
         });
       }
 
-      const { error: deleteError } = await supabase
-        .from("agent_vector_documents")
-        .delete()
-        .eq("id", document.id)
-        .eq("user_id", user.id);
+      try {
+        // Delete the document
+        const { error: deleteError } = await supabase
+          .from("agent_vector_documents")
+          .delete()
+          .eq("id", document.id)
+          .eq("user_id", user.id);
 
-      if (deleteError) {
-        return new Response(JSON.stringify({ error: "Failed to delete document", details: deleteError }), {
+        if (deleteError) {
+          return new Response(JSON.stringify({ error: "Failed to delete document", details: deleteError }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Update document count in agent settings
+        try {
+          const { data: agentData, error: agentError } = await supabase
+            .from("user_agents")
+            .select("vector_store")
+            .eq("id", agent_id)
+            .single();
+          
+          if (!agentError && agentData) {
+            const currentVectorStore = agentData.vector_store || {};
+            const documentCount = currentVectorStore.document_count || 0;
+            
+            if (documentCount > 0) {
+              await supabase
+                .from("user_agents")
+                .update({
+                  vector_store: {
+                    ...currentVectorStore,
+                    document_count: documentCount - 1
+                  }
+                })
+                .eq("id", agent_id);
+            }
+          }
+        } catch (countError) {
+          console.error("Error updating document count:", countError);
+          // Non-critical error, continue
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: "Document deleted successfully"
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        console.error("Error deleting document:", error);
+        return new Response(JSON.stringify({ error: "Failed to delete document", details: error.message }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
-
-      return new Response(JSON.stringify({
-        success: true,
-        message: "Document deleted successfully"
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
     }
     else if (action === "list_documents") {
-      const { data: documents, error: listError } = await supabase
-        .from("agent_vector_documents")
-        .select("id, content, metadata, created_at")
-        .eq("collection_name", collection_name)
-        .eq("user_id", user.id);
+      try {
+        const { data: documents, error: listError } = await supabase
+          .from("agent_vector_documents")
+          .select("id, content, metadata, created_at")
+          .eq("collection_name", collection_name)
+          .eq("agent_id", agent_id)
+          .eq("user_id", user.id);
 
-      if (listError) {
-        return new Response(JSON.stringify({ error: "Failed to list documents", details: listError }), {
+        if (listError) {
+          return new Response(JSON.stringify({ error: "Failed to list documents", details: listError }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        return new Response(JSON.stringify({
+          documents
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        console.error("Error listing documents:", error);
+        return new Response(JSON.stringify({ error: "Failed to list documents", details: error.message }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
+    }
+    else if (action === "get_document_count") {
+      try {
+        const { count, error: countError } = await supabase
+          .from("agent_vector_documents")
+          .select("id", { count: 'exact', head: true })
+          .eq("collection_name", collection_name)
+          .eq("agent_id", agent_id)
+          .eq("user_id", user.id);
 
-      return new Response(JSON.stringify({
-        documents
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+        if (countError) {
+          return new Response(JSON.stringify({ error: "Failed to get document count", details: countError }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        return new Response(JSON.stringify({
+          count
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (error) {
+        console.error("Error getting document count:", error);
+        return new Response(JSON.stringify({ error: "Failed to get document count", details: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
     }
     else {
       return new Response(JSON.stringify({ error: `Unsupported action: ${action}` }), {

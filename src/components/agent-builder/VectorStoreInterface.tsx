@@ -27,6 +27,7 @@ interface Document {
     [key: string]: any;
   };
   created_at?: string;
+  similarity?: number;
 }
 
 const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
@@ -43,10 +44,10 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
   const [documentTitle, setDocumentTitle] = useState<string>('');
   const [documentSource, setDocumentSource] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Document[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Get the Supabase function URL from environment variables
+  // Get the Supabase function URL from environment
   const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ryujklxvochfkuokgduz.supabase.co'}/functions/v1/vector-store`;
 
   useEffect(() => {
@@ -57,13 +58,23 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
   const fetchDocuments = async () => {
     setIsLoading(true);
     try {
-      const token = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to access documents.',
+          variant: 'destructive'
+        });
+        setIsLoading(false);
+        return;
+      }
       
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token.data.session?.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           action: 'list_documents',
@@ -116,13 +127,23 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
 
     try {
       setUploadingFiles(true);
-      const token = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to add documents.',
+          variant: 'destructive'
+        });
+        setUploadingFiles(false);
+        return;
+      }
       
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token.data.session?.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           action: 'add_document',
@@ -181,6 +202,18 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
     const results = { success: 0, failed: 0 };
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to upload files.',
+          variant: 'destructive'
+        });
+        setUploadingFiles(false);
+        return;
+      }
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         try {
@@ -198,13 +231,11 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
               };
               
               if (content && typeof content === 'string') {
-                const token = await supabase.auth.getSession();
-                
                 const response = await fetch(functionUrl, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token.data.session?.access_token}`
+                    'Authorization': `Bearer ${session.access_token}`
                   },
                   body: JSON.stringify({
                     action: 'add_document',
@@ -253,7 +284,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
             reader.readAsText(file);
           } else {
             // For non-text files, we'll just use the file name as content
-            // In a real implementation, you'd want to extract text from PDFs, etc.
+            // In a real implementation, we'd extract text from PDFs, etc.
             reader.readAsDataURL(file);
           }
         } catch (error) {
@@ -285,13 +316,23 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
 
     setIsSearching(true);
     try {
-      const token = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to search documents.',
+          variant: 'destructive'
+        });
+        setIsSearching(false);
+        return;
+      }
       
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token.data.session?.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           action: 'search',
@@ -323,13 +364,22 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
   // Function to delete a document
   const deleteDocument = async (id: string) => {
     try {
-      const token = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to delete documents.',
+          variant: 'destructive'
+        });
+        return;
+      }
       
       const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token.data.session?.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           action: 'delete_document',
@@ -554,7 +604,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
                         {result.metadata.title || 'Untitled Document'}
                       </h4>
                       <Badge variant="secondary" className="text-xs">
-                        Score: {(result.similarity * 100).toFixed(1)}%
+                        Score: {(result.similarity ? result.similarity * 100 : 0).toFixed(1)}%
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-400 mb-2">{formatContentPreview(result.content)}</p>

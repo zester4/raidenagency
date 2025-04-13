@@ -1,5 +1,4 @@
 
-# This is the configuration file for Supabase Edge Functions.
 project_id = "ryujklxvochfkuokgduz"
 
 [functions.vector-store]
@@ -12,4 +11,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.process-document]
+verify_jwt = true
+
+[functions.model-provider]
 verify_jwt = true
