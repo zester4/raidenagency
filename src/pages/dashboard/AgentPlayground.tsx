@@ -32,7 +32,7 @@ interface PlaygroundState {
 
 const AgentPlayground: React.FC = () => {
   const { toast } = useToast();
-  const { agents, isLoading: agentsLoading } = useAgents();
+  const { agents, loading: agentsLoading } = useAgents();
   const [selectedAgentId, setSelectedAgentId] = useState<string>('');
   const [selectedAgent, setSelectedAgent] = useState<UserAgent | null>(null);
   const [userInput, setUserInput] = useState('');
@@ -433,6 +433,12 @@ const AgentPlayground: React.FC = () => {
                     <VectorStoreInterface 
                       agentId={selectedAgent.id} 
                       collectionName={selectedAgent.vector_store?.collection_name || `agent_${selectedAgent.id.slice(0, 8)}`}
+                      onDocumentsUpdated={(count) => {
+                        // Update document count in the UI
+                        if (selectedAgent.vector_store) {
+                          // Only show count update if needed
+                        }
+                      }}
                     />
                   </div>
                 ) : (

@@ -46,6 +46,9 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  // Get the Supabase function URL from environment variables
+  const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ryujklxvochfkuokgduz.supabase.co'}/functions/v1/vector-store`;
+
   useEffect(() => {
     fetchDocuments();
   }, [agentId, collectionName]);
@@ -56,7 +59,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
     try {
       const token = await supabase.auth.getSession();
       
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/vector-store`, {
+      const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +118,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
       setUploadingFiles(true);
       const token = await supabase.auth.getSession();
       
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/vector-store`, {
+      const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +200,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
               if (content && typeof content === 'string') {
                 const token = await supabase.auth.getSession();
                 
-                const response = await fetch(`${supabase.supabaseUrl}/functions/v1/vector-store`, {
+                const response = await fetch(functionUrl, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -284,7 +287,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
     try {
       const token = await supabase.auth.getSession();
       
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/vector-store`, {
+      const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -322,7 +325,7 @@ const VectorStoreInterface: React.FC<VectorStoreInterfaceProps> = ({
     try {
       const token = await supabase.auth.getSession();
       
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/vector-store`, {
+      const response = await fetch(functionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
