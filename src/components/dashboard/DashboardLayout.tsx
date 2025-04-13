@@ -28,10 +28,16 @@ import {
   Menu,
   X,
   BrainCircuit,
-  Wrench
+  Wrench,
+  CreditCard,
+  MessageSquare,
+  Sparkles,
+  Database
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -41,11 +47,26 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(3);
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      navigate('/');
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account.",
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an issue signing out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getInitials = () => {
@@ -76,6 +97,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     return user.email?.split('@')[0] || 'Raiden User';
   };
 
+  const clearNotifications = () => {
+    setNotificationCount(0);
+    toast({
+      title: "Notifications cleared",
+      description: "All notifications have been marked as read.",
+    });
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen bg-raiden-black text-white flex">
@@ -83,10 +112,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <Sidebar variant="sidebar" className="bg-black/50 border-r border-gray-800">
           <SidebarHeader>
             <div className="flex items-center space-x-2 px-4 py-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-electric-blue to-cyberpunk-purple rounded-full flex items-center justify-center">
+              <div 
+                className="w-8 h-8 bg-gradient-to-r from-electric-blue to-cyberpunk-purple rounded-full flex items-center justify-center"
+                onClick={() => navigate('/')}
+                style={{ cursor: 'pointer' }}
+              >
                 <span className="text-white font-bold">R</span>
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-cyberpunk-purple">
+              <span 
+                className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-cyberpunk-purple"
+                onClick={() => navigate('/')}
+                style={{ cursor: 'pointer' }}
+              >
                 Raiden
               </span>
             </div>
@@ -111,11 +148,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    isActive={location.pathname === '/dashboard/agents'}
+                    isActive={location.pathname === '/dashboard/agents' || location.pathname === '/dashboard/playground'}
                     onClick={() => navigate('/dashboard/agents')}
                     tooltip="Agents"
                   >
                     <BrainCircuit className="mr-2 h-4 w-4 text-cyberpunk-purple" /> Agents
+                    <Badge className="ml-auto mr-1 bg-cyberpunk-purple/80 text-xs">AI</Badge>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === '/dashboard/playground'}
+                    onClick={() => navigate('/dashboard/playground')}
+                    tooltip="Playground"
+                  >
+                    <Sparkles className="mr-2 h-4 w-4 text-holographic-teal" /> Playground
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 
@@ -138,7 +186,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     <BarChart3 className="mr-2 h-4 w-4 text-holographic-teal" /> Analytics
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                
+              </SidebarMenu>
+            </SidebarGroup>
+            
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-gray-500 text-xs font-bold uppercase tracking-wider px-4">
+                Business
+              </SidebarGroupLabel>
+              
+              <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     isActive={location.pathname === '/dashboard/team'}
@@ -148,15 +204,39 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                     <Users2 className="mr-2 h-4 w-4 text-electric-blue" /> Team
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === '/dashboard/pricing'}
+                    onClick={() => navigate('/dashboard/pricing')}
+                    tooltip="Pricing"
+                  >
+                    <CreditCard className="mr-2 h-4 w-4 text-cyberpunk-purple" /> Billing
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroup>
             
             <SidebarGroup>
               <SidebarGroupLabel className="text-gray-500 text-xs font-bold uppercase tracking-wider px-4">
-                Account
+                Data & Settings
               </SidebarGroupLabel>
               
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={false}
+                    onClick={() => toast({
+                      title: "Coming Soon",
+                      description: "The knowledge base feature is coming soon.",
+                    })}
+                    tooltip="Knowledge Base"
+                  >
+                    <Database className="mr-2 h-4 w-4 text-gray-400" /> Knowledge Base
+                    <Badge className="ml-auto mr-1 bg-gray-700 text-xs">Soon</Badge>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     isActive={location.pathname === '/dashboard/settings'}
@@ -172,6 +252,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           
           <SidebarFooter>
             <div className="p-4">
+              <div className="flex items-center space-x-3 mb-4 p-2 rounded-md hover:bg-gray-800/50 transition-colors">
+                <Avatar className="h-8 w-8 border border-gray-700">
+                  <AvatarFallback className="bg-gray-800 text-white">
+                    {getInitials()}
+                  </AvatarFallback>
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{getUserName()}</p>
+                  <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                </div>
+              </div>
+              
               <Button 
                 variant="outline" 
                 className="w-full justify-start text-white border-gray-700 hover:bg-gray-800"
@@ -240,6 +334,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 variant="ghost"
                 className="justify-start text-left"
                 onClick={() => {
+                  navigate('/dashboard/playground');
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                <Sparkles className="mr-2 h-5 w-5 text-holographic-teal" /> Playground
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="justify-start text-left"
+                onClick={() => {
                   navigate('/dashboard/tools');
                   setIsMobileMenuOpen(false);
                 }}
@@ -302,7 +407,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search agents, tools, docs..."
                   className="w-full pl-10 pr-4 py-2 text-sm rounded-md bg-black/40 border border-gray-700 text-white focus:outline-none focus:border-electric-blue"
                 />
               </div>
@@ -311,9 +416,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <div className="md:hidden"></div> {/* Placeholder for mobile */}
             
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative text-gray-300 hover:text-white"
+                onClick={clearNotifications}
+              >
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-cyberpunk-purple"></span>
+                {notificationCount > 0 && (
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-cyberpunk-purple"></span>
+                )}
               </Button>
               
               <div className="flex items-center space-x-3">
@@ -321,6 +433,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   <AvatarFallback className="bg-gray-800 text-white">
                     {getInitials()}
                   </AvatarFallback>
+                  <AvatarImage src={user?.user_metadata?.avatar_url} />
                 </Avatar>
                 
                 <div className="hidden md:block">

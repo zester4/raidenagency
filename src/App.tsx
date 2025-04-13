@@ -11,6 +11,8 @@ import AgentPlayground from './pages/dashboard/AgentPlayground';
 import Settings from './pages/dashboard/Settings';
 import Tools from './pages/dashboard/Tools';
 import DashboardPricing from './pages/dashboard/Pricing';
+import TeamManagement from './pages/dashboard/TeamManagement';
+import Analytics from './pages/dashboard/Analytics';
 import Services from './pages/Services';
 import CaseStudies from './pages/CaseStudies';
 import Technology from './pages/Technology';
@@ -19,7 +21,6 @@ import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import Pricing from './pages/Pricing';
 import Team from './pages/Team';
-import Analytics from './pages/Analytics';
 import './App.css';
 
 function App() {
@@ -36,7 +37,6 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/team" element={<Team />} />
-          <Route path="/analytics" element={<Analytics />} />
           
           {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -45,6 +45,8 @@ function App() {
           <Route path="/dashboard/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
           <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="/dashboard/pricing" element={<ProtectedRoute><DashboardPricing /></ProtectedRoute>} />
+          <Route path="/dashboard/team" element={<ProtectedRoute><TeamManagement /></ProtectedRoute>} />
+          <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />

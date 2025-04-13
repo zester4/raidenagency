@@ -15,3 +15,6 @@ verify_jwt = true
 
 [functions.model-provider]
 verify_jwt = true
+
+[functions.document-embeddings]
+verify_jwt = true
