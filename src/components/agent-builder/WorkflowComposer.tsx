@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -79,7 +78,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
     type: 'solid'
   });
   
-  // Update nodes/edges when initialTemplate changes
   useEffect(() => {
     if (initialTemplate) {
       setWorkflowName(initialTemplate.name);
@@ -90,11 +88,9 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   }, [initialTemplate]);
   
   const handleAddNode = () => {
-    // Find available position (simple placement for now)
     const y = nodes.length > 2 ? 200 : 200;
     const x = 350;
     
-    // Generate unique ID
     const id = `node_${Date.now()}`;
     
     setNodeFormData({
@@ -111,7 +107,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   const handleSaveNode = () => {
     const { id, label, type, icon, agentId } = nodeFormData;
     
-    // Create new node with calculated position
     const newNode: WorkflowNode = {
       id,
       label,
@@ -120,7 +115,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
       icon
     };
     
-    // Add new node
     setNodes([...nodes, newNode]);
     setIsNodeDialogOpen(false);
     
@@ -131,7 +125,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   };
   
   const handleAddEdge = () => {
-    // Reset edge form data
     setEdgeFormData({
       from: nodes.find(n => n.type === 'start')?.id || '',
       to: '',
@@ -145,7 +138,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   const handleSaveEdge = () => {
     const { from, to, label, type } = edgeFormData;
     
-    // Validate edge
     if (!from || !to) {
       toast({
         title: "Invalid edge",
@@ -155,7 +147,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
       return;
     }
     
-    // Check if edge already exists
     const edgeExists = edges.some(e => e.from === from && e.to === to);
     if (edgeExists) {
       toast({
@@ -166,7 +157,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
       return;
     }
     
-    // Create new edge
     const newEdge: WorkflowEdge = {
       id: `edge_${Date.now()}`,
       from,
@@ -175,7 +165,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
       type: type as 'solid' | 'dashed'
     };
     
-    // Add new edge
     setEdges([...edges, newEdge]);
     setIsEdgeDialogOpen(false);
     
@@ -186,7 +175,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
   };
   
   const handleDeleteNode = (nodeId: string) => {
-    // Don't allow deleting start/end nodes
     if (nodeId === 'start' || nodeId === 'end') {
       toast({
         title: "Cannot delete node",
@@ -196,10 +184,8 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
       return;
     }
     
-    // Remove node
     setNodes(nodes.filter(node => node.id !== nodeId));
     
-    // Remove all edges connected to this node
     setEdges(edges.filter(edge => edge.from !== nodeId && edge.to !== nodeId));
     
     toast({
@@ -392,7 +378,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
         </Button>
       </div>
       
-      {/* Node Dialog */}
       <Dialog open={isNodeDialogOpen} onOpenChange={setIsNodeDialogOpen}>
         <DialogContent className="bg-black/90 border-gray-800">
           <DialogHeader>
@@ -491,7 +476,6 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
         </DialogContent>
       </Dialog>
       
-      {/* Edge Dialog */}
       <Dialog open={isEdgeDialogOpen} onOpenChange={setIsEdgeDialogOpen}>
         <DialogContent className="bg-black/90 border-gray-800">
           <DialogHeader>

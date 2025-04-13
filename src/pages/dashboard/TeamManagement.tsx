@@ -1,54 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+  Users, 
+  UserPlus, 
+  Settings, 
+  ShieldCheck, 
+  Calendar, 
+  Mail, 
+  Check, 
+  X, 
+  Edit,
+  Trash,
+  CreditCard,
+  Key,
+  Download,
+  Clipboard,
+  Share,
+  UserX,
+  AlertTriangle,
+  User,
+  ClipboardCheck
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Dialog, 
-  DialogContent,
+  DialogContent, 
   DialogDescription, 
   DialogFooter, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle, 
+  DialogTrigger 
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  UserPlus, 
-  Users, 
-  UserCheck, 
-  Shield, 
-  Mail, 
-  Clock, 
-  MoreHorizontal, 
-  Check, 
-  X,
-  Settings,
-  Key,
-  Lock,
-  Award
-} from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -56,804 +44,623 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-interface TeamMember {
+interface UserProfile {
   id: string;
   email: string;
-  role: 'admin' | 'member' | 'viewer';
-  name?: string;
-  invited_at: string;
-  status: 'active' | 'pending' | 'disabled';
-  last_active?: string;
-}
-
-interface Invitation {
-  id: string;
-  email: string;
-  role: 'admin' | 'member' | 'viewer';
-  invited_at: string;
-  expires_at: string;
-  status: 'pending' | 'accepted' | 'expired';
+  created_at: string;
+  user_metadata: {
+    avatar_url: string;
+    email: string;
+    email_verified: boolean;
+    full_name: string;
+    iss: string;
+    name: string;
+    picture: string;
+    provider_id: string;
+    sub: string;
+  };
 }
 
 const TeamManagement = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const [teamMembers, setTeamMembers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'member' | 'viewer'>('member');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isApiKeyDialogOpen, setIsApiKeyDialogOpen] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [isRegenerateDialogOpen, setIsRegenerateDialogOpen] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
+  const [isApiKeyLoading, setIsApiKeyLoading] = useState(false);
+  const [isApiKeyCopied, setIsApiKeyCopied] = useState(false);
+  const [isApiKeyRegenerated, setIsApiKeyRegenerated] = useState(false);
+  const [isApiKeyRevoked, setIsApiKeyRevoked] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchTeamData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // In a real implementation, this would fetch team data from Supabase
-        // For now, we'll use mock data
-        
-        // Mock current user as admin
-        const currentUserMock: TeamMember = {
-          id: user?.id || 'current-user',
-          email: user?.email || 'current@example.com',
-          name: getUserName(),
-          role: 'admin',
-          invited_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          status: 'active',
-          last_active: new Date().toISOString(),
-        };
-        
-        // Mock team members
-        const mockTeamMembers: TeamMember[] = [
-          currentUserMock,
-          {
-            id: 'user-2',
-            email: 'team.member@example.com',
-            name: 'Team Member',
-            role: 'member',
-            invited_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active',
-            last_active: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          {
-            id: 'user-3',
-            email: 'viewer@example.com',
-            name: 'Viewer Only',
-            role: 'viewer',
-            invited_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'active',
-            last_active: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          }
-        ];
-        
-        // Mock invitations
-        const mockInvitations: Invitation[] = [
-          {
-            id: 'invite-1',
-            email: 'pending@example.com',
-            role: 'member',
-            invited_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            expires_at: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'pending',
-          }
-        ];
-        
-        setTeamMembers(mockTeamMembers);
-        setInvitations(mockInvitations);
-      } catch (error) {
-        console.error('Error fetching team data:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load team data',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    fetchTeamMembers();
+  }, []);
 
-    fetchTeamData();
-  }, [user, toast]);
-
-  const getUserName = () => {
-    if (!user) return 'User';
-    
-    const metadata = user.user_metadata;
-    if (metadata && metadata.first_name && metadata.last_name) {
-      return `${metadata.first_name} ${metadata.last_name}`;
-    }
-    
-    return user.email?.split('@')[0] || 'User';
-  };
-
-  const getInitials = (name: string, email: string) => {
-    if (name) {
-      const nameParts = name.split(' ');
-      if (nameParts.length >= 2) {
-        return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
-      }
-      return name.substring(0, 2).toUpperCase();
-    }
-    
-    return email.substring(0, 2).toUpperCase();
-  };
-
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return 'just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    return `${Math.floor(diffInSeconds / 604800)} weeks ago`;
-  };
-
-  const handleSendInvite = async () => {
-    if (!inviteEmail.trim()) {
-      toast({
-        title: 'Invalid email',
-        description: 'Please enter a valid email address',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
+  const fetchTeamMembers = async () => {
+    setIsLoading(true);
     try {
-      // In a real implementation, this would send an invitation via Supabase
-      // For now, just simulate with a timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Add to invitations list
-      const newInvitation: Invitation = {
-        id: `invite-${Date.now()}`,
-        email: inviteEmail,
-        role: inviteRole,
-        invited_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        status: 'pending',
-      };
-      
-      setInvitations([...invitations, newInvitation]);
-      
-      toast({
-        title: 'Invitation sent',
-        description: `Invitation email sent to ${inviteEmail}`,
-      });
-      
-      setIsInviteDialogOpen(false);
-      setInviteEmail('');
-      setInviteRole('member');
+      const { data: users, error } = await supabase.auth.admin.listUsers();
+      if (error) {
+        console.error('Error fetching team members:', error);
+        toast({
+          title: "Error fetching team members",
+          description: "Failed to load team members. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        setTeamMembers(users.users);
+      }
     } catch (error) {
-      console.error('Error sending invitation:', error);
+      console.error('Error fetching team members:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to send invitation',
-        variant: 'destructive',
+        title: "Error fetching team members",
+        description: "Failed to load team members. Please check your connection and try again.",
+        variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  const handleRevokeInvite = async (invitationId: string) => {
+  const handleInviteMember = async () => {
     try {
-      // In a real implementation, this would revoke the invitation via Supabase
-      // For now, just remove from the local state
-      setInvitations(invitations.filter(inv => inv.id !== invitationId));
-      
+      const { data, error } = await supabase.auth.admin.inviteUserByEmail(inviteEmail);
+      if (error) {
+        console.error('Error inviting member:', error);
+        toast({
+          title: "Error inviting member",
+          description: `Failed to invite ${inviteEmail}. Please check the email address and try again.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Member invited",
+          description: `Successfully invited ${inviteEmail} to the team.`,
+        });
+        setIsInviteDialogOpen(false);
+        setInviteEmail('');
+        fetchTeamMembers();
+      }
+    } catch (error) {
+      console.error('Error inviting member:', error);
       toast({
-        title: 'Invitation revoked',
-        description: 'The invitation has been revoked successfully',
+        title: "Error inviting member",
+        description: "Failed to invite member. Please check your connection and try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGenerateApiKey = async () => {
+    setIsApiKeyLoading(true);
+    try {
+      // Simulate API key generation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const generatedKey = 'sk-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      setApiKey(generatedKey);
+      setIsApiKeyDialogOpen(true);
+    } catch (error) {
+      console.error('Error generating API key:', error);
+      toast({
+        title: "Error generating API key",
+        description: "Failed to generate API key. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsApiKeyLoading(false);
+    }
+  };
+
+  const handleRegenerateApiKey = async () => {
+    setIsApiKeyLoading(true);
+    try {
+      // Simulate API key regeneration
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const newKey = 'sk-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      setApiKey(newKey);
+      setIsApiKeyRegenerated(true);
+      toast({
+        title: "API key regenerated",
+        description: "Successfully regenerated the API key.",
       });
     } catch (error) {
-      console.error('Error revoking invitation:', error);
+      console.error('Error regenerating API key:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to revoke invitation',
-        variant: 'destructive',
+        title: "Error regenerating API key",
+        description: "Failed to regenerate API key. Please try again.",
+        variant: "destructive",
       });
+    } finally {
+      setIsApiKeyLoading(false);
+      setIsRegenerateDialogOpen(false);
     }
   };
 
-  const handleUpdateMemberRole = async (memberId: string, newRole: 'admin' | 'member' | 'viewer') => {
+  const handleRevokeApiKey = async () => {
+    setIsApiKeyLoading(true);
     try {
-      // In a real implementation, this would update the user's role via Supabase
-      // For now, just update the local state
-      setTeamMembers(teamMembers.map(member => 
-        member.id === memberId ? { ...member, role: newRole } : member
-      ));
-      
+      // Simulate API key revocation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setApiKey('');
+      setIsApiKeyRevoked(true);
       toast({
-        title: 'Role updated',
-        description: 'Team member role has been updated successfully',
+        title: "API key revoked",
+        description: "Successfully revoked the API key.",
       });
     } catch (error) {
-      console.error('Error updating role:', error);
+      console.error('Error revoking API key:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update role',
-        variant: 'destructive',
+        title: "Error revoking API key",
+        description: "Failed to revoke API key. Please try again.",
+        variant: "destructive",
       });
+    } finally {
+      setIsApiKeyLoading(false);
     }
   };
 
-  const handleRemoveMember = async (memberId: string) => {
-    // Prevent removing yourself
-    if (memberId === user?.id) {
-      toast({
-        title: 'Cannot remove yourself',
-        description: 'You cannot remove your own account from the team',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
+  const handleCopyApiKey = () => {
+    navigator.clipboard.writeText(apiKey);
+    setIsApiKeyCopied(true);
+    toast({
+      title: "API key copied",
+      description: "API key copied to clipboard.",
+    });
+    setTimeout(() => setIsApiKeyCopied(false), 2000);
+  };
+
+  const handleRemoveMember = async () => {
+    if (!selectedMemberId) return;
     try {
-      // In a real implementation, this would remove the user via Supabase
-      // For now, just update the local state
-      setTeamMembers(teamMembers.filter(member => member.id !== memberId));
-      
-      toast({
-        title: 'Member removed',
-        description: 'Team member has been removed successfully',
-      });
+      const { error } = await supabase.auth.admin.deleteUser(selectedMemberId);
+      if (error) {
+        console.error('Error removing member:', error);
+        toast({
+          title: "Error removing member",
+          description: "Failed to remove member. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Member removed",
+          description: "Successfully removed member from the team.",
+        });
+        setIsRemoveDialogOpen(false);
+        setSelectedMemberId(null);
+        fetchTeamMembers();
+      }
     } catch (error) {
       console.error('Error removing member:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to remove team member',
-        variant: 'destructive',
+        title: "Error removing member",
+        description: "Failed to remove member. Please check your connection and try again.",
+        variant: "destructive",
       });
-    }
-  };
-
-  const renderRoleBadge = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return <Badge className="bg-red-600">Admin</Badge>;
-      case 'member':
-        return <Badge className="bg-blue-600">Member</Badge>;
-      case 'viewer':
-        return <Badge className="bg-gray-600">Viewer</Badge>;
-      default:
-        return <Badge variant="outline">{role}</Badge>;
     }
   };
 
   return (
-    <DashboardLayout>
-      <div className="container py-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Users className="h-6 w-6 text-electric-blue" />
-            <h1 className="text-2xl font-bold">Team Management</h1>
-          </div>
-          
-          <Button
-            onClick={() => setIsInviteDialogOpen(true)}
-            className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90"
-          >
-            <UserPlus className="mr-2 h-4 w-4" />
-            Invite Team Member
-          </Button>
-        </div>
-        
-        <Tabs defaultValue="members" className="mb-8">
-          <TabsList className="bg-black/30 border border-gray-800">
-            <TabsTrigger value="members" className="data-[state=active]:bg-electric-blue/10 flex items-center gap-2">
-              <UserCheck className="h-4 w-4" /> Members
-            </TabsTrigger>
-            <TabsTrigger value="invitations" className="data-[state=active]:bg-electric-blue/10 flex items-center gap-2">
-              <Mail className="h-4 w-4" /> Invitations
-            </TabsTrigger>
-            <TabsTrigger value="roles" className="data-[state=active]:bg-electric-blue/10 flex items-center gap-2">
-              <Shield className="h-4 w-4" /> Roles & Permissions
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="members" className="space-y-4 mt-4">
-            <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <UserCheck className="h-5 w-5 text-electric-blue mr-2" />
-                  Team Members
-                </CardTitle>
-                <CardDescription>
-                  Manage the members of your team and their access levels
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center space-x-4">
-                        <Skeleton className="h-12 w-12 rounded-full" />
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-[250px]" />
-                          <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-gray-800">
-                        <TableHead>User</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Last Active</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {teamMembers.map((member) => (
-                        <TableRow key={member.id} className="border-gray-800">
-                          <TableCell className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarFallback className="bg-electric-blue/20 text-white">
-                                {getInitials(member.name || '', member.email)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">{member.name || 'No name'}</div>
-                              <div className="text-xs text-gray-400">{member.email}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {renderRoleBadge(member.role)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={member.status === 'active' ? 'success' : 'outline'}>
-                              {member.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Clock className="h-3 w-3 text-gray-400" />
-                              <span className="text-sm">
-                                {member.last_active ? getTimeAgo(member.last_active) : 'Never'}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-black/90 border-gray-800">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-gray-800" />
-                                <DropdownMenuItem
-                                  onSelect={() => handleUpdateMemberRole(member.id, 'admin')}
-                                  disabled={member.role === 'admin' || member.id === user?.id}
-                                >
-                                  <Shield className="mr-2 h-4 w-4" />
-                                  Make Admin
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onSelect={() => handleUpdateMemberRole(member.id, 'member')}
-                                  disabled={member.role === 'member'}
-                                >
-                                  <UserCheck className="mr-2 h-4 w-4" />
-                                  Make Member
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onSelect={() => handleUpdateMemberRole(member.id, 'viewer')}
-                                  disabled={member.role === 'viewer'}
-                                >
-                                  <Users className="mr-2 h-4 w-4" />
-                                  Make Viewer
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-gray-800" />
-                                <DropdownMenuItem
-                                  onSelect={() => handleRemoveMember(member.id)}
-                                  disabled={member.id === user?.id}
-                                  className="text-red-500 focus:text-red-500"
-                                >
-                                  <X className="mr-2 h-4 w-4" />
-                                  Remove from Team
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="invitations" className="space-y-4 mt-4">
-            <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Mail className="h-5 w-5 text-electric-blue mr-2" />
-                  Pending Invitations
-                </CardTitle>
-                <CardDescription>
-                  View and manage pending team invitations
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="space-y-4">
-                    {[1, 2].map((i) => (
-                      <div key={i} className="flex items-center space-x-4">
-                        <Skeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-[250px]" />
-                          <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : invitations.length === 0 ? (
-                  <div className="text-center py-6">
-                    <Mail className="h-12 w-12 text-gray-500 mx-auto mb-3" />
-                    <h3 className="text-lg font-medium mb-1">No Pending Invitations</h3>
-                    <p className="text-gray-400 text-sm mb-4">
-                      There are no pending invitations at the moment
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsInviteDialogOpen(true)}
-                      className="border-gray-700"
-                    >
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Invite a Team Member
-                    </Button>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-gray-800">
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Invited</TableHead>
-                        <TableHead>Expires</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {invitations.map((invitation) => (
-                        <TableRow key={invitation.id} className="border-gray-800">
-                          <TableCell>
-                            <div className="font-medium">{invitation.email}</div>
-                          </TableCell>
-                          <TableCell>
-                            {renderRoleBadge(invitation.role)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-1">
-                              <Clock className="h-3 w-3 text-gray-400" />
-                              <span className="text-sm">{getTimeAgo(invitation.invited_at)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {new Date(invitation.expires_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleRevokeInvite(invitation.id)}
-                              className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                            >
-                              <X className="mr-2 h-4 w-4" />
-                              Revoke
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-              <CardFooter className="flex justify-between border-t border-gray-800 pt-4">
-                <div className="text-sm text-gray-400">
-                  Invitations expire after 7 days
-                </div>
-                <Button
-                  onClick={() => setIsInviteDialogOpen(true)}
-                  variant="default"
-                  className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90"
-                >
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Invite Team Member
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="roles" className="space-y-4 mt-4">
-            <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Shield className="h-5 w-5 text-electric-blue mr-2" />
-                  Roles & Permissions
-                </CardTitle>
-                <CardDescription>
-                  Learn about the different roles and their permissions
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="border-gray-800 bg-black/30">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base flex items-center">
-                        <Shield className="h-4 w-4 text-red-500 mr-2" />
-                        Admin
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-2">
-                      <p className="text-sm text-gray-400 mb-4">
-                        Full control over the organization, including user management and billing.
-                      </p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Create and manage all agents</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Invite and manage team members</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Access billing and subscription</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Configure API keys and integrations</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Access all organization data</span>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border-gray-800 bg-black/30">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base flex items-center">
-                        <UserCheck className="h-4 w-4 text-blue-500 mr-2" />
-                        Member
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-2">
-                      <p className="text-sm text-gray-400 mb-4">
-                        Can create and use agents, but cannot manage team members or billing.
-                      </p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Create and manage their agents</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Use shared organization agents</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Upload documents to knowledge base</span>
-                        </li>
-                        <li className="flex items-center">
-                          <X className="h-4 w-4 text-red-500 mr-2" />
-                          <span className="text-gray-400">Cannot manage team members</span>
-                        </li>
-                        <li className="flex items-center">
-                          <X className="h-4 w-4 text-red-500 mr-2" />
-                          <span className="text-gray-400">Cannot access billing</span>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="border-gray-800 bg-black/30">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-base flex items-center">
-                        <Users className="h-4 w-4 text-gray-500 mr-2" />
-                        Viewer
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-2">
-                      <p className="text-sm text-gray-400 mb-4">
-                        Read-only access to agents and data. Cannot create or modify anything.
-                      </p>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>Use existing agents</span>
-                        </li>
-                        <li className="flex items-center">
-                          <Check className="h-4 w-4 text-green-500 mr-2" />
-                          <span>View analytics and reports</span>
-                        </li>
-                        <li className="flex items-center">
-                          <X className="h-4 w-4 text-red-500 mr-2" />
-                          <span className="text-gray-400">Cannot create new agents</span>
-                        </li>
-                        <li className="flex items-center">
-                          <X className="h-4 w-4 text-red-500 mr-2" />
-                          <span className="text-gray-400">Cannot modify existing agents</span>
-                        </li>
-                        <li className="flex items-center">
-                          <X className="h-4 w-4 text-red-500 mr-2" />
-                          <span className="text-gray-400">Cannot upload documents</span>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Additional Security Settings</h3>
-                  <div className="space-y-4">
-                    <Card className="border-gray-800 bg-black/30 p-4">
-                      <div className="flex items-start space-x-3">
-                        <Key className="h-5 w-5 text-yellow-500 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium">API Key Access</h4>
-                          <p className="text-sm text-gray-400">
-                            Control which roles can create and manage API keys for accessing the Raiden API.
-                          </p>
-                          <div className="flex mt-2 space-x-2">
-                            <Badge className="bg-red-600">Admin</Badge>
-                            <Badge className="bg-blue-600">Member</Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                    
-                    <Card className="border-gray-800 bg-black/30 p-4">
-                      <div className="flex items-start space-x-3">
-                        <Lock className="h-5 w-5 text-green-500 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium">Two-Factor Authentication</h4>
-                          <p className="text-sm text-gray-400">
-                            Enforce two-factor authentication for specific roles to enhance security.
-                          </p>
-                          <div className="flex mt-2 space-x-2">
-                            <Badge className="bg-red-600">Admin</Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                    
-                    <Card className="border-gray-800 bg-black/30 p-4">
-                      <div className="flex items-start space-x-3">
-                        <Award className="h-5 w-5 text-purple-500 mt-0.5" />
-                        <div>
-                          <h4 className="font-medium">Custom Role Creation</h4>
-                          <p className="text-sm text-gray-400">
-                            Available on Enterprise plans. Create custom roles with specific permissions.
-                          </p>
-                          <Button variant="outline" className="mt-2 bg-black/30 border-gray-700">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Upgrade to Enterprise
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-      
-      {/* Invite Dialog */}
-      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-        <DialogContent className="bg-black/80 backdrop-blur-sm border-gray-800 text-white">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-electric-blue" />
-              Invite Team Member
-            </DialogTitle>
-            <DialogDescription>
-              Send an invitation to add someone to your team.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="colleague@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                className="bg-black/30 border-gray-700"
-              />
+    <Tabs defaultValue="team" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="team"><Users className="mr-2 h-4 w-4" /> Team Members</TabsTrigger>
+        <TabsTrigger value="settings"><Settings className="mr-2 h-4 w-4" /> Settings</TabsTrigger>
+        <TabsTrigger value="billing"><CreditCard className="mr-2 h-4 w-4" /> Billing</TabsTrigger>
+        <TabsTrigger value="api"><Key className="mr-2 h-4 w-4" /> API Keys</TabsTrigger>
+      </TabsList>
+      <TabsContent value="team" className="space-y-4">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>Manage your team members and their roles.</CardDescription>
+              <Button variant="outline" size="sm" onClick={() => setIsInviteDialogOpen(true)}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Invite Member
+              </Button>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select 
-                value={inviteRole} 
-                onValueChange={(value) => setInviteRole(value as 'admin' | 'member' | 'viewer')}
-              >
-                <SelectTrigger className="bg-black/30 border-gray-700">
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent className="bg-black/90 border-gray-700">
-                  <SelectItem value="admin">
-                    <div className="flex items-center">
-                      <Shield className="h-4 w-4 text-red-500 mr-2" />
-                      <span>Admin</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="member">
-                    <div className="flex items-center">
-                      <UserCheck className="h-4 w-4 text-blue-500 mr-2" />
-                      <span>Member</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="viewer">
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 text-gray-500 mr-2" />
-                      <span>Viewer</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <div className="text-xs text-gray-400 mt-1">
-                {inviteRole === 'admin' ? 
-                  'Admins have full control over the organization, including user management and billing.' :
-                 inviteRole === 'member' ? 
-                  'Members can create and use agents, but cannot manage team members or billing.' :
-                  'Viewers have read-only access to agents and data. They cannot create or modify anything.'}
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-4">Loading team members...</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Joined Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {teamMembers.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Avatar>
+                            <AvatarImage src={member.user_metadata?.avatar_url} />
+                            <AvatarFallback>{member.user_metadata?.name?.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <span>{member.user_metadata?.full_name || member.user_metadata?.name || 'N/A'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{member.email}</TableCell>
+                      <TableCell>{new Date(member.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => {
+                              setSelectedMemberId(member.id);
+                              setIsRemoveDialogOpen(true);
+                            }}>
+                              <UserX className="mr-2 h-4 w-4" />
+                              Remove Member
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                              <Share className="mr-2 h-4 w-4" />
+                              Share Profile
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="settings">
+        <Card>
+          <CardHeader>
+            <CardTitle>Team Settings</CardTitle>
+            <CardDescription>Configure your team settings.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="team-name">Team Name</Label>
+                <Input id="team-name" defaultValue="LangCorp AI" className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="team-description">Team Description</Label>
+                <Input id="team-description" defaultValue="AI Solutions for Everyone" className="mt-1" />
               </div>
             </div>
+            <div>
+              <Label className="block mb-2">Security Settings</Label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-md border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Two-Factor Authentication</p>
+                    <p className="text-sm text-muted-foreground">Enable 2FA for enhanced security.</p>
+                  </div>
+                  <Switch id="2fa" />
+                </div>
+                <div className="flex items-center justify-between rounded-md border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">IP Whitelisting</p>
+                    <p className="text-sm text-muted-foreground">Restrict access to specific IP addresses.</p>
+                  </div>
+                  <Switch id="ip-whitelisting" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>Save Changes</Button>
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="billing">
+        <Card>
+          <CardHeader>
+            <CardTitle>Billing</CardTitle>
+            <CardDescription>Manage your subscription and billing details.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-md border p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Current Plan</h3>
+                  <p className="text-muted-foreground">Premium</p>
+                </div>
+                <Badge variant="outline">Active</Badge>
+              </div>
+              <p className="text-muted-foreground mt-2">Next billing date: July 20, 2024</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">Payment Method</h4>
+              <div className="mt-2 flex items-center space-x-4">
+                <CreditCard className="h-6 w-6 text-muted-foreground" />
+                <span>**** **** **** 1234</span>
+                <Button variant="outline" size="sm">Update Payment Method</Button>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">Billing History</h4>
+              <Table className="mt-2">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>June 20, 2024</TableCell>
+                    <TableCell>Subscription Payment</TableCell>
+                    <TableCell>$99.00</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Invoice
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>May 20, 2024</TableCell>
+                    <TableCell>Subscription Payment</TableCell>
+                    <TableCell>$99.00</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Invoice
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent value="api">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>API Keys</CardTitle>
+              <CardDescription>Manage your API keys for accessing our services.</CardDescription>
+              <Button variant="outline" size="sm" onClick={handleGenerateApiKey} disabled={!!apiKey}>
+                {isApiKeyLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Key className="mr-2 h-4 w-4" />
+                    Generate API Key
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {apiKey ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between rounded-md border p-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">API Key</h3>
+                    <p className="text-muted-foreground">Use this key to authenticate your requests.</p>
+                    <div className="mt-2 flex items-center space-x-2">
+                      <Input
+                        type="text"
+                        value={apiKey}
+                        readOnly
+                        className="bg-gray-900 border-gray-700 cursor-not-allowed"
+                      />
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleCopyApiKey}
+                        disabled={isApiKeyCopied}
+                      >
+                        {isApiKeyCopied ? (
+                          <>
+                            <ClipboardCheck className="mr-2 h-4 w-4" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Clipboard className="mr-2 h-4 w-4" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setIsRegenerateDialogOpen(true)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Regenerate Key
+                  </Button>
+                  <Button variant="destructive" onClick={handleRevokeApiKey} disabled={isApiKeyLoading}>
+                    {isApiKeyLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Revoking...
+                      </>
+                    ) : (
+                      <>
+                        <Trash className="mr-2 h-4 w-4" />
+                        Revoke Key
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                No API key generated yet. Click "Generate API Key" to create one.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* Invite Member Dialog */}
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogContent className="bg-black/90 border-gray-800">
+          <DialogHeader>
+            <DialogTitle>Invite New Member</DialogTitle>
+            <DialogDescription>
+              Enter the email address of the person you want to invite to your team.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                type="email"
+                id="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                className="col-span-3 bg-black/60 border-gray-700"
+              />
+            </div>
           </div>
-          
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsInviteDialogOpen(false)}
-              className="border-gray-700"
-            >
+            <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSendInvite}
-              className="bg-cyberpunk-purple hover:bg-cyberpunk-purple/90"
-              disabled={isSubmitting || !inviteEmail.trim()}
-            >
-              {isSubmitting ? (
+            <Button onClick={handleInviteMember}>Invite</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* API Key Dialog */}
+      <Dialog open={isApiKeyDialogOpen} onOpenChange={setIsApiKeyDialogOpen}>
+        <DialogContent className="bg-black/90 border-gray-800">
+          <DialogHeader>
+            <DialogTitle>Generated API Key</DialogTitle>
+            <DialogDescription>
+              Your API key has been generated. Please store it securely.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="api-key" className="text-right">
+                API Key
+              </Label>
+              <Input
+                type="text"
+                id="api-key"
+                value={apiKey}
+                readOnly
+                className="col-span-3 bg-gray-900 border-gray-700 cursor-not-allowed"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsApiKeyDialogOpen(false)}>
+              Close
+            </Button>
+            <Button onClick={handleCopyApiKey} disabled={isApiKeyCopied}>
+              {isApiKeyCopied ? (
                 <>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                  Sending...
+                  <Check className="mr-2 h-4 w-4" />
+                  Copied!
                 </>
               ) : (
                 <>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Send Invitation
+                  <Clipboard className="mr-2 h-4 w-4" />
+                  Copy
                 </>
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+
+      {/* Regenerate API Key Dialog */}
+      <Dialog open={isRegenerateDialogOpen} onOpenChange={setIsRegenerateDialogOpen}>
+        <DialogContent className="bg-black/90 border-gray-800">
+          <DialogHeader>
+            <DialogTitle>Regenerate API Key</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to regenerate your API key? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRegenerateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRegenerateApiKey} disabled={isApiKeyLoading}>
+              {isApiKeyLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Regenerating...
+                </>
+              ) : (
+                "Regenerate"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Member Dialog */}
+      <Dialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
+        <DialogContent className="bg-black/90 border-gray-800">
+          <DialogHeader>
+            <DialogTitle>Remove Member</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove this member from your team? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRemoveDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleRemoveMember}>
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Tabs>
   );
 };
 

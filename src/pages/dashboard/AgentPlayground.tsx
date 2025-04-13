@@ -37,6 +37,7 @@ const AgentPlayground = () => {
     frequencyPenalty: 0,
     presencePenalty: 0
   });
+  const [showWorkflowVisualizer, setShowWorkflowVisualizer] = useState(false);
 
   useEffect(() => {
     const agentId = searchParams.get('id');
@@ -395,20 +396,12 @@ const AgentPlayground = () => {
                 </TabsContent>
                 
                 <TabsContent value="workflow" className="mt-4">
-                  <Card className="border-gray-800 bg-black/20 backdrop-blur-sm">
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center">
-                        <Code className="h-5 w-5 text-cyberpunk-purple mr-2" />
-                        Agent Workflow
-                      </CardTitle>
-                      <CardDescription>
-                        Visualize how this agent processes user queries and generates responses
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <AgentWorkflowVisualizer agent={agent} />
-                    </CardContent>
-                  </Card>
+                  {showWorkflowVisualizer && selectedAgent && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-4">Agent Workflow</h3>
+                      <AgentWorkflowVisualizer agent={selectedAgent} />
+                    </div>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="settings" className="mt-4">
