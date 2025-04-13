@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { DateRange } from '@/types/date-range';
-import { DatabaseFunctions } from '@/types/database';
 
 const COLORS = [
   '#0088FE',
@@ -41,53 +40,14 @@ const Analytics: React.FC = () => {
       const fromDate = date?.from?.toISOString().split('T')[0];
       const toDate = date?.to?.toISOString().split('T')[0];
 
-      const { data: agentUsageData, error: agentUsageError } = await supabase.rpc('get_agent_usage', {
-        from_date: fromDate,
-        to_date: toDate
-      });
+      const mockAgentUsageData = await fetchAgentUsageMetrics(date);
+      setAgentUsage(mockAgentUsageData);
 
-      if (agentUsageError) {
-        console.error("Error fetching agent usage data:", agentUsageError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch agent usage data",
-          variant: "destructive"
-        });
-      } else {
-        setAgentUsage(agentUsageData || []);
-      }
+      const mockDailyActiveUsers = await fetchDailyActiveUsers(date);
+      setDailyActiveUsers(mockDailyActiveUsers);
 
-      const { data: dailyActiveUsersData, error: dailyActiveUsersError } = await supabase.rpc('get_daily_active_users', {
-        from_date: fromDate,
-        to_date: toDate
-      });
-
-      if (dailyActiveUsersError) {
-        console.error("Error fetching daily active users:", dailyActiveUsersError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch daily active users",
-          variant: "destructive"
-        });
-      } else {
-        setDailyActiveUsers(dailyActiveUsersData || []);
-      }
-
-      const { data: conversationDataData, error: conversationDataError } = await supabase.rpc('get_daily_conversations', {
-        from_date: fromDate,
-        to_date: toDate
-      });
-
-      if (conversationDataError) {
-        console.error("Error fetching conversation data:", conversationDataError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch conversation data",
-          variant: "destructive"
-        });
-      } else {
-        setConversationData(conversationDataData || []);
-      }
+      const mockConversationData = await fetchDailyConversations(date);
+      setConversationData(mockConversationData);
     } catch (error) {
       console.error("Unexpected error fetching analytics data:", error);
       toast({
@@ -190,7 +150,10 @@ const Analytics: React.FC = () => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
-                <DateRangePicker date={date} onSelect={setDate} />
+                <DateRangePicker 
+                  date={date} 
+                  onSelect={(newDate) => setDate(newDate)} 
+                />
               </PopoverContent>
             </Popover>
           </div>

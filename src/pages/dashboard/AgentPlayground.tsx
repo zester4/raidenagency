@@ -239,7 +239,6 @@ const AgentPlayground: React.FC = () => {
     toast({
       title: "Conversation cleared",
       description: "Your conversation history has been cleared.",
-      variant: "outline",
     });
   };
 
@@ -279,7 +278,6 @@ const AgentPlayground: React.FC = () => {
       toast({
         title: "Copied to clipboard",
         description: "Conversation has been copied to your clipboard.",
-        variant: "outline",
       });
     });
   };
@@ -403,14 +401,13 @@ const AgentPlayground: React.FC = () => {
                           
                           {message.thinking && (
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               className="mt-2 w-full text-xs bg-black/30 border-gray-700"
                               onClick={() => 
                                 toast({
                                   title: "Agent Thinking",
                                   description: message.thinking,
-                                  variant: "outline",
                                 })
                               }
                             >

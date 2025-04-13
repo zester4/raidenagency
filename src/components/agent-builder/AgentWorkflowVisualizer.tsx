@@ -1,24 +1,11 @@
+
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-
-interface Node {
-  id: string;
-  label: string;
-  type: 'start' | 'end' | 'agent' | 'tool';
-  position: { x: number; y: number };
-}
-
-interface Edge {
-  id: string;
-  from: string;
-  to: string;
-  type: 'solid' | 'dashed';
-  label?: string;
-}
+import { WorkflowNode, WorkflowEdge } from '@/lib/agent-workflow-types';
 
 interface AgentWorkflowVisualizerProps {
-  nodes: Node[];
-  edges: Edge[];
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
   highlightedPath?: string[];
   className?: string;
 }
