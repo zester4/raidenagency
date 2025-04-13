@@ -539,9 +539,7 @@ const TeamManagement: React.FC = () => {
                               </div>
                               <div className="text-xs text-gray-400 truncate">{user.email}</div>
                             </div>
-                            <Badge variant={getRoleBadgeVariant(user.role)} className="ml-auto">
-                              {user.role}
-                            </Badge>
+                            <Badge variant="secondary">{user.role}</Badge>
                           </button>
                         ))}
                       </div>
@@ -635,9 +633,7 @@ const TeamManagement: React.FC = () => {
                               <h2 className="text-xl font-medium">{selectedUser.full_name || 'Unnamed User'}</h2>
                               <div className="text-gray-400">{selectedUser.email}</div>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge variant={getRoleBadgeVariant(selectedUser.role)}>
-                                  {selectedUser.role}
-                                </Badge>
+                                <Badge variant="secondary">{selectedUser.role}</Badge>
                                 {selectedUser.is_active ? (
                                   <Badge variant="success">Active</Badge>
                                 ) : (
@@ -909,7 +905,7 @@ const TeamManagement: React.FC = () => {
                                       </div>
                                     </div>
                                     <div>
-                                      <Badge variant={getRoleBadgeVariant(user.role)}>
+                                      <Badge variant="secondary">
                                         {user.role}
                                       </Badge>
                                     </div>

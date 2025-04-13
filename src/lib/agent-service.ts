@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface ModelConfig {
@@ -52,35 +53,38 @@ export interface SubscriptionPlan {
   is_active: boolean;
 }
 
+// Mock subscriptions data
+const mockSubscriptions: Record<string, SubscriptionPlan> = {
+  'free': {
+    id: 'free',
+    name: 'Free',
+    description: 'Basic access to AI agents',
+    monthly_price: 0,
+    annual_price: 0,
+    features: { agents: 2, conversations: 50, modelAccess: ['gpt-3.5-turbo'] },
+    limits: { maxAgents: 2, maxConversations: 50 },
+    is_active: true
+  },
+  'pro': {
+    id: 'pro',
+    name: 'Pro',
+    description: 'Advanced access to AI agents with more capabilities',
+    monthly_price: 19.99,
+    annual_price: 199.99,
+    features: { agents: 10, conversations: 500, modelAccess: ['gpt-4o', 'claude-3-sonnet'] },
+    limits: { maxAgents: 10, maxConversations: 500 },
+    is_active: true
+  }
+};
+
 export const subscriptionService = {
   getCurrentPlan: async (): Promise<SubscriptionPlan | null> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: subscriptionData, error: subscriptionError } = await supabase
-        .from('user_subscriptions')
-        .select('plan_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (subscriptionError || !subscriptionData) {
-        console.error('Error fetching subscription:', subscriptionError);
-        return null;
-      }
-
-      const { data: planData, error: planError } = await supabase
-        .from('subscription_plans')
-        .select('*')
-        .eq('id', subscriptionData.plan_id)
-        .single();
-
-      if (planError || !planData) {
-        console.error('Error fetching plan:', planError);
-        return null;
-      }
-
-      return planData as SubscriptionPlan;
+      // Return the free plan for now
+      return mockSubscriptions['free'];
     } catch (error) {
       console.error('Error fetching current plan:', error);
       return null;
@@ -89,18 +93,8 @@ export const subscriptionService = {
 
   getAllPlans: async (): Promise<SubscriptionPlan[]> => {
     try {
-      const { data, error } = await supabase
-        .from('subscription_plans')
-        .select('*')
-        .eq('is_active', true)
-        .order('monthly_price', { ascending: true });
-
-      if (error || !data) {
-        console.error('Error fetching subscription plans:', error);
-        return [];
-      }
-
-      return data as SubscriptionPlan[];
+      // Return mock plans
+      return Object.values(mockSubscriptions);
     } catch (error) {
       console.error('Error fetching all plans:', error);
       return [];
@@ -108,50 +102,84 @@ export const subscriptionService = {
   }
 };
 
+// Mock agents data
+const mockAgents: UserAgent[] = [
+  {
+    id: 'agent-1',
+    name: 'Customer Support Agent',
+    description: 'Handles customer inquiries and support requests',
+    category: 'support',
+    system_prompt: 'You are a helpful customer support agent...',
+    model_config: {
+      model: 'gpt-4o',
+      provider: 'openai',
+      temperature: 0.7
+    },
+    vector_store: {
+      enabled: true,
+      collection_name: 'customer_support',
+      document_count: 1000
+    },
+    created_at: new Date().toISOString(),
+    status: 'online'
+  },
+  {
+    id: 'agent-2',
+    name: 'Sales Assistant',
+    description: 'Helps with product information and sales inquiries',
+    category: 'sales',
+    system_prompt: 'You are a knowledgeable sales assistant...',
+    model_config: {
+      model: 'claude-3-sonnet-20240229',
+      provider: 'anthropic',
+      temperature: 0.8
+    },
+    vector_store: {
+      enabled: true,
+      collection_name: 'sales',
+      document_count: 500
+    },
+    created_at: new Date().toISOString(),
+    status: 'online'
+  }
+];
+
+// Mock templates data
+const mockTemplates: AgentTemplate[] = [
+  {
+    id: 'template-1',
+    name: 'Customer Support',
+    description: 'Template for creating customer support agents',
+    category: 'support',
+    system_prompt: 'You are a helpful customer support agent...',
+    model_config: {
+      model: 'gpt-4o',
+      provider: 'openai',
+      temperature: 0.7
+    },
+    popularity: 'high',
+    workflow_template_id: 'customer-support-flow'
+  },
+  {
+    id: 'template-2',
+    name: 'Sales Assistant',
+    description: 'Template for creating sales assistant agents',
+    category: 'sales',
+    system_prompt: 'You are a knowledgeable sales assistant...',
+    model_config: {
+      model: 'claude-3-sonnet-20240229',
+      provider: 'anthropic',
+      temperature: 0.8
+    },
+    popularity: 'medium',
+    workflow_template_id: 'sales-workflow'
+  }
+];
+
 export const userAgentService = {
   getAll: async (): Promise<UserAgent[]> => {
     try {
-      // Mock implementation
-      return [
-        {
-          id: 'agent-1',
-          name: 'Customer Support Agent',
-          description: 'Handles customer inquiries and support requests',
-          category: 'support',
-          system_prompt: 'You are a helpful customer support agent...',
-          model_config: {
-            model: 'gpt-4o',
-            provider: 'openai',
-            temperature: 0.7
-          },
-          vector_store: {
-            enabled: true,
-            collection_name: 'customer_support',
-            document_count: 1000
-          },
-          created_at: new Date().toISOString(),
-          status: 'online'
-        },
-        {
-          id: 'agent-2',
-          name: 'Sales Assistant',
-          description: 'Helps with product information and sales inquiries',
-          category: 'sales',
-          system_prompt: 'You are a knowledgeable sales assistant...',
-          model_config: {
-            model: 'claude-3-sonnet-20240229',
-            provider: 'anthropic',
-            temperature: 0.8
-          },
-          vector_store: {
-            enabled: true,
-            collection_name: 'sales',
-            document_count: 500
-          },
-          created_at: new Date().toISOString(),
-          status: 'online'
-        }
-      ];
+      return mockAgents;
     } catch (error) {
       console.error('Error fetching agents:', error);
       return [];
@@ -160,13 +188,13 @@ export const userAgentService = {
 
   create: async (agent: Omit<UserAgent, 'id' | 'created_at' | 'updated_at'>): Promise<UserAgent | null> => {
     try {
-      // Mock implementation
       const newAgent: UserAgent = {
         id: `agent-${Date.now()}`,
         ...agent,
         created_at: new Date().toISOString(),
         status: 'online'
       };
+      mockAgents.push(newAgent);
       return newAgent;
     } catch (error) {
       console.error('Error creating agent:', error);
@@ -176,22 +204,17 @@ export const userAgentService = {
 
   update: async (id: string, updates: Partial<UserAgent>): Promise<UserAgent | null> => {
     try {
-      // Mock implementation
-      return {
-        id,
-        name: updates.name || 'Updated Agent',
-        description: updates.description || 'Updated description',
-        system_prompt: updates.system_prompt || '',
-        model_config: updates.model_config || { model: 'gpt-4o', provider: 'openai' },
-        vector_store: updates.vector_store || {
-          enabled: true,
-          collection_name: 'default',
-          document_count: 0
-        },
-        updated_at: new Date().toISOString(),
-        created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-        status: updates.status || 'online'
+      const index = mockAgents.findIndex(a => a.id === id);
+      if (index === -1) return null;
+      
+      const updatedAgent = {
+        ...mockAgents[index],
+        ...updates,
+        updated_at: new Date().toISOString()
       };
+      
+      mockAgents[index] = updatedAgent;
+      return updatedAgent;
     } catch (error) {
       console.error('Error updating agent:', error);
       return null;
@@ -200,7 +223,10 @@ export const userAgentService = {
 
   delete: async (id: string): Promise<boolean> => {
     try {
-      // Mock implementation
+      const index = mockAgents.findIndex(a => a.id === id);
+      if (index === -1) return false;
+      
+      mockAgents.splice(index, 1);
       return true;
     } catch (error) {
       console.error('Error deleting agent:', error);
@@ -210,7 +236,10 @@ export const userAgentService = {
 
   updateStatus: async (id: string, status: 'online' | 'offline' | 'error'): Promise<boolean> => {
     try {
-      // Mock implementation
+      const index = mockAgents.findIndex(a => a.id === id);
+      if (index === -1) return false;
+      
+      mockAgents[index].status = status;
       return true;
     } catch (error) {
       console.error('Error updating agent status:', error);
@@ -222,37 +251,7 @@ export const userAgentService = {
 export const agentTemplateService = {
   getAll: async (): Promise<AgentTemplate[]> => {
     try {
-      // Mock implementation
-      return [
-        {
-          id: 'template-1',
-          name: 'Customer Support',
-          description: 'Template for creating customer support agents',
-          category: 'support',
-          system_prompt: 'You are a helpful customer support agent...',
-          model_config: {
-            model: 'gpt-4o',
-            provider: 'openai',
-            temperature: 0.7
-          },
-          popularity: 'high',
-          workflow_template_id: 'customer-support-flow'
-        },
-        {
-          id: 'template-2',
-          name: 'Sales Assistant',
-          description: 'Template for creating sales assistant agents',
-          category: 'sales',
-          system_prompt: 'You are a knowledgeable sales assistant...',
-          model_config: {
-            model: 'claude-3-sonnet-20240229',
-            provider: 'anthropic',
-            temperature: 0.8
-          },
-          popularity: 'medium',
-          workflow_template_id: 'sales-workflow'
-        }
-      ];
+      return mockTemplates;
     } catch (error) {
       console.error('Error fetching agent templates:', error);
       return [];

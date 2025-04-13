@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { UserApiKey } from '@/types/database';
@@ -202,6 +201,9 @@ export const modelProviders: ModelProvider[] = [
   }
 ];
 
+// Mock in-memory storage for API keys
+const mockApiKeys: Record<string, Record<string, string>> = {};
+
 // Get a model by its ID
 export const getModelById = (modelId: string): Model | undefined => {
   for (const provider of modelProviders) {
@@ -221,20 +223,9 @@ export const getUserApiKey = async (providerId: string): Promise<string | null> 
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
-
-    const { data, error } = await supabase
-      .from('user_api_keys')
-      .select('api_key')
-      .eq('user_id', user.id)
-      .eq('provider_id', providerId)
-      .single();
-
-    if (error || !data) {
-      console.error('Error fetching user API key:', error);
-      return null;
-    }
-
-    return data.api_key;
+    
+    // Return from mock storage for now
+    return mockApiKeys[user.id]?.[providerId] || null;
   } catch (error) {
     console.error('Error fetching user API key:', error);
     return null;
@@ -246,47 +237,13 @@ export const saveUserApiKey = async (providerId: string, apiKey: string): Promis
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
-
-    // Check if an API key already exists for this provider
-    const { data: existingKey } = await supabase
-      .from('user_api_keys')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('provider_id', providerId)
-      .single();
-
-    if (existingKey) {
-      // Update existing key
-      const { data, error } = await supabase
-        .from('user_api_keys')
-        .update({ 
-          api_key: apiKey, 
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', existingKey.id);
-
-      if (error) {
-        console.error('Error updating user API key:', error);
-        return false;
-      }
-      return true;
-    } else {
-      // Insert new key
-      const { data, error } = await supabase
-        .from('user_api_keys')
-        .insert({
-          user_id: user.id,
-          provider_id: providerId,
-          api_key: apiKey,
-          created_at: new Date().toISOString()
-        });
-
-      if (error) {
-        console.error('Error saving user API key:', error);
-        return false;
-      }
-      return true;
+    
+    // Save to mock storage
+    if (!mockApiKeys[user.id]) {
+      mockApiKeys[user.id] = {};
     }
+    mockApiKeys[user.id][providerId] = apiKey;
+    return true;
   } catch (error) {
     console.error('Error saving user API key:', error);
     return false;
@@ -298,16 +255,10 @@ export const deleteUserApiKey = async (providerId: string): Promise<boolean> => 
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return false;
-
-    const { error } = await supabase
-      .from('user_api_keys')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('provider_id', providerId);
-
-    if (error) {
-      console.error('Error deleting user API key:', error);
-      return false;
+    
+    // Remove from mock storage
+    if (mockApiKeys[user.id]) {
+      delete mockApiKeys[user.id][providerId];
     }
     return true;
   } catch (error) {
@@ -321,18 +272,9 @@ export const getUserApiKeyProviders = async (): Promise<string[]> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
-
-    const { data, error } = await supabase
-      .from('user_api_keys')
-      .select('provider_id')
-      .eq('user_id', user.id);
-
-    if (error || !data) {
-      console.error('Error fetching user API key providers:', error);
-      return [];
-    }
-
-    return data.map(row => row.provider_id);
+    
+    // Return from mock storage
+    return mockApiKeys[user.id] ? Object.keys(mockApiKeys[user.id]) : [];
   } catch (error) {
     console.error('Error fetching user API key providers:', error);
     return [];

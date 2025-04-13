@@ -9,6 +9,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRangePicker } from "@/components/date-range-picker";
+import { DateRange } from '@/types/date-range';
+import { DatabaseFunctions } from '@/types/database';
 
 const COLORS = [
   '#0088FE',
@@ -18,7 +20,7 @@ const COLORS = [
   '#8884d8'
 ];
 
-const Analytics = () => {
+const Analytics: React.FC = () => {
   const [agentUsage, setAgentUsage] = useState([]);
   const [dailyActiveUsers, setDailyActiveUsers] = useState([]);
   const [conversationData, setConversationData] = useState([]);
@@ -95,6 +97,46 @@ const Analytics = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAgentUsageMetrics = async (dateRange: DateRange) => {
+    try {
+      // Mock data until we have proper database functions
+      return [
+        { agent_name: 'Customer Support', usage_count: 125 },
+        { agent_name: 'Sales Assistant', usage_count: 89 },
+        { agent_name: 'Technical Support', usage_count: 45 }
+      ];
+    } catch (error) {
+      console.error('Error fetching agent usage metrics:', error);
+      return [];
+    }
+  };
+
+  const fetchDailyActiveUsers = async (dateRange: DateRange) => {
+    try {
+      // Mock data until we have proper database functions
+      return Array.from({ length: 30 }).map((_, i) => ({
+        time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        active_users: Math.floor(Math.random() * 100) + 50
+      }));
+    } catch (error) {
+      console.error('Error fetching daily active users:', error);
+      return [];
+    }
+  };
+
+  const fetchDailyConversations = async (dateRange: DateRange) => {
+    try {
+      // Mock data until we have proper database functions
+      return Array.from({ length: 30 }).map((_, i) => ({
+        time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        conversations: Math.floor(Math.random() * 200) + 100
+      }));
+    } catch (error) {
+      console.error('Error fetching daily conversations:', error);
+      return [];
     }
   };
 

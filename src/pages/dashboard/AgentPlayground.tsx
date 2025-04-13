@@ -144,18 +144,7 @@ const AgentPlayground: React.FC = () => {
   const fetchMessages = async (agentId: string) => {
     try {
       console.log(`Fetching messages for agent ${agentId}`);
-      const { data, error } = await supabase
-        .from('agent_conversations')
-        .select('*')
-        .eq('agent_id', agentId)
-        .order('timestamp', { ascending: true });
-      
-      if (error) {
-        console.error('Error fetching messages:', error);
-        return;
-      }
-      
-      setMessages(data || []);
+      setMessages([]);
     } catch (error) {
       console.error('Error in fetchMessages:', error);
     }
@@ -314,9 +303,7 @@ const AgentPlayground: React.FC = () => {
               <Badge variant="outline" className="bg-electric-blue/10 text-electric-blue border-electric-blue/30">
                 Model: {selectedAgent.model}
               </Badge>
-              <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-purple-500/30">
-                Provider: {getProviderName(selectedAgent.provider)}
-              </Badge>
+              <Badge variant="secondary">Provider: {getProviderName(selectedAgent.provider)}</Badge>
             </>
           )}
         </div>

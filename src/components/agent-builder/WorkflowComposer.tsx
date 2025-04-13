@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Bot, Plus, Save, Trash2, ArrowRight, Edit, PlusCircle, Share, Copy, Workflow } from 'lucide-react';
 import AgentWorkflowVisualizer from './AgentWorkflowVisualizer';
-import { WorkflowTemplate, WorkflowNode, WorkflowEdge } from '@/lib/agent-workflow-templates';
+import { WorkflowNode, WorkflowEdge, WorkflowTemplate, WorkflowNodeType } from '@/lib/agent-workflow-types';
 import { useAgents } from '@/hooks/useAgents';
 
 interface WorkflowComposerProps {
@@ -110,7 +111,7 @@ export const WorkflowComposer: React.FC<WorkflowComposerProps> = ({
     const newNode: WorkflowNode = {
       id,
       label,
-      type: type as 'agent' | 'tool' | 'condition',
+      type: type as WorkflowNodeType,
       position: { x: 350, y: 200 },
       icon
     };
