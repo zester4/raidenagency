@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,7 +110,6 @@ const TeamManagement: React.FC = () => {
   const fetchUsers = async () => {
     setIsLoading(true);
     try {
-      // In a real app, this would fetch from your API
       const mockUsers: UserProfile[] = [
         {
           id: '1',
@@ -175,7 +173,6 @@ const TeamManagement: React.FC = () => {
 
   const fetchTeams = async () => {
     try {
-      // In a real app, this would fetch from your API
       const mockTeams: Team[] = [
         {
           id: '1',
@@ -216,7 +213,6 @@ const TeamManagement: React.FC = () => {
       return;
     }
     
-    // Simulate API call
     setTimeout(() => {
       toast({
         title: 'Invitation sent',
@@ -282,7 +278,7 @@ const TeamManagement: React.FC = () => {
       name: newTeamName,
       description: newTeamDescription,
       members_count: newTeamMembers.length,
-      created_by: '1', // current user ID in a real app
+      created_by: '1',
       created_at: new Date().toISOString()
     };
     

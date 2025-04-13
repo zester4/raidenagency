@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -24,11 +23,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Calendar } from 'lucide-react';
 import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRangePicker } from "@/components/date-range-picker";
+import { DatabaseFunctions } from '@/types/database';
 
 interface AgentUsageData {
   agent_name: string;
@@ -68,56 +67,23 @@ const Analytics: React.FC = () => {
       const fromDate = date?.from?.toISOString().split('T')[0];
       const toDate = date?.to?.toISOString().split('T')[0];
 
-      // Fetch agent usage data
-      const { data: agentUsageData, error: agentUsageError } = await supabase.rpc(
-        'get_agent_usage',
-        { from_date: fromDate, to_date: toDate }
-      );
+      // Mock data for now until we create the necessary database functions
+      setAgentUsage([
+        { agent_name: 'Customer Support', usage_count: 45 },
+        { agent_name: 'Knowledge Base', usage_count: 30 },
+        { agent_name: 'Sales Assistant', usage_count: 25 }
+      ]);
+      
+      setDailyActiveUsers(Array.from({ length: 30 }, (_, i) => ({
+        time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        active_users: Math.floor(Math.random() * 100) + 50
+      })));
+      
+      setConversationData(Array.from({ length: 30 }, (_, i) => ({
+        time: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        conversations: Math.floor(Math.random() * 200) + 100
+      })));
 
-      if (agentUsageError) {
-        console.error("Error fetching agent usage data:", agentUsageError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch agent usage data",
-          variant: "destructive",
-        });
-      } else {
-        setAgentUsage(agentUsageData || []);
-      }
-
-      // Fetch daily active users
-      const { data: dailyActiveUsersData, error: dailyActiveUsersError } = await supabase.rpc(
-        'get_daily_active_users',
-        { from_date: fromDate, to_date: toDate }
-      );
-
-      if (dailyActiveUsersError) {
-        console.error("Error fetching daily active users:", dailyActiveUsersError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch daily active users",
-          variant: "destructive",
-        });
-      } else {
-        setDailyActiveUsers(dailyActiveUsersData || []);
-      }
-
-      // Fetch conversation data
-      const { data: conversationDataData, error: conversationDataError } = await supabase.rpc(
-        'get_daily_conversations',
-        { from_date: fromDate, to_date: toDate }
-      );
-
-      if (conversationDataError) {
-        console.error("Error fetching conversation data:", conversationDataError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch conversation data",
-          variant: "destructive",
-        });
-      } else {
-        setConversationData(conversationDataData || []);
-      }
     } catch (error) {
       console.error("Unexpected error fetching analytics data:", error);
       toast({

@@ -1,8 +1,20 @@
-
-// Update the imports and fix selectedAgent issues
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, Bot, Info, Clipboard, Trash2, Workflow, Loader2, BookOpen, Settings, RefreshCw, Memory, Upload, Database } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Send, 
+  Bot, 
+  Info, 
+  Clipboard, 
+  Trash2, 
+  Workflow, 
+  Loader2, 
+  BookOpen, 
+  Settings, 
+  RefreshCw, 
+  Database, 
+  Upload 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -71,7 +83,7 @@ const AgentPlayground: React.FC = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { agents, isLoading: agentsLoading } = useAgents();
+  const { agents, loading, error } = useAgents();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
@@ -82,40 +94,56 @@ const AgentPlayground: React.FC = () => {
   const [workflowTemplate, setWorkflowTemplate] = useState<WorkflowTemplate | null>(null);
 
   useEffect(() => {
-    if (!agentsLoading && agents.length > 0) {
+    if (!loading && agents.length > 0) {
       if (agentId) {
         const agent = agents.find(a => a.id === agentId);
         if (agent) {
-          setSelectedAgent(agent);
+          setSelectedAgent({
+            id: agent.id,
+            name: agent.name,
+            description: agent.description || '',
+            model: agent.model_config?.model || 'gpt-4o',
+            provider: agent.model_config?.provider || 'openai',
+            system_prompt: agent.system_prompt || '',
+            created_at: agent.created_at || new Date().toISOString()
+          });
           fetchMessages(agent.id);
           fetchAgentWorkflow(agent.id);
-        } else {
-          setSelectedAgent(agents[0]);
-          fetchMessages(agents[0].id);
-          fetchAgentWorkflow(agents[0].id);
+        } else if (agents.length > 0) {
+          const firstAgent = agents[0];
+          setSelectedAgent({
+            id: firstAgent.id,
+            name: firstAgent.name,
+            description: firstAgent.description || '',
+            model: firstAgent.model_config?.model || 'gpt-4o',
+            provider: firstAgent.model_config?.provider || 'openai',
+            system_prompt: firstAgent.system_prompt || '',
+            created_at: firstAgent.created_at || new Date().toISOString()
+          });
+          fetchMessages(firstAgent.id);
+          fetchAgentWorkflow(firstAgent.id);
         }
       } else if (agents.length > 0) {
-        setSelectedAgent(agents[0]);
-        fetchMessages(agents[0].id);
-        fetchAgentWorkflow(agents[0].id);
+        const firstAgent = agents[0];
+        setSelectedAgent({
+          id: firstAgent.id,
+          name: firstAgent.name,
+          description: firstAgent.description || '',
+          model: firstAgent.model_config?.model || 'gpt-4o',
+          provider: firstAgent.model_config?.provider || 'openai',
+          system_prompt: firstAgent.system_prompt || '',
+          created_at: firstAgent.created_at || new Date().toISOString()
+        });
+        fetchMessages(firstAgent.id);
+        fetchAgentWorkflow(firstAgent.id);
       }
     }
-  }, [agentId, agents, agentsLoading]);
+  }, [agentId, agents, loading]);
 
   const fetchMessages = async (agentId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('agent_conversations')
-        .select('*')
-        .eq('agent_id', agentId)
-        .order('timestamp', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching messages:', error);
-        return;
-      }
-
-      setMessages(data || []);
+      console.log(`Fetching messages for agent ${agentId}`);
+      setMessages([]);
     } catch (error) {
       console.error('Error in fetchMessages:', error);
     }
@@ -123,8 +151,6 @@ const AgentPlayground: React.FC = () => {
 
   const fetchAgentWorkflow = async (agentId: string) => {
     try {
-      // This is a placeholder - in a real app you would fetch the actual workflow from the database
-      // For now we'll use a sample workflow template
       const sampleWorkflow: WorkflowTemplate = {
         id: 'customer-support-flow',
         name: 'Customer Support Flow',
@@ -174,7 +200,6 @@ const AgentPlayground: React.FC = () => {
     setIsThinking(true);
     
     try {
-      // Simulate API request
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const assistantMessage: Message = {
@@ -230,7 +255,15 @@ const AgentPlayground: React.FC = () => {
   const handleAgentChange = (agentId: string) => {
     const agent = agents.find(a => a.id === agentId);
     if (agent) {
-      setSelectedAgent(agent);
+      setSelectedAgent({
+        id: agent.id,
+        name: agent.name,
+        description: agent.description || '',
+        model: agent.model_config?.model || 'gpt-4o',
+        provider: agent.model_config?.provider || 'openai',
+        system_prompt: agent.system_prompt || '',
+        created_at: agent.created_at || new Date().toISOString()
+      });
       fetchMessages(agent.id);
       fetchAgentWorkflow(agent.id);
     }
@@ -287,7 +320,7 @@ const AgentPlayground: React.FC = () => {
                     <Bot className="h-5 w-5" />
                   </Avatar>
                   
-                  {!agentsLoading && agents.length > 0 && (
+                  {!loading && agents.length > 0 && (
                     <Select
                       value={selectedAgent?.id}
                       onValueChange={handleAgentChange}

@@ -1,20 +1,20 @@
 
 project_id = "ryujklxvochfkuokgduz"
 
-[functions.vector-store]
-verify_jwt = true
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
 
-[functions.agent-orchestrator]
-verify_jwt = true
+[db]
+port = 54322
 
-[functions.chat-with-agent]
-verify_jwt = true
+[realtime]
+enabled = true
 
-[functions.process-document]
-verify_jwt = true
+[studio]
+enabled = true
+port = 54323
 
 [functions.model-provider]
-verify_jwt = true
-
-[functions.document-embeddings]
 verify_jwt = true

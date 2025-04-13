@@ -1,21 +1,17 @@
 
-import { Bot, Wallet, WrenchIcon, CircuitBoard, Users, ShieldCheck, Database, Search, HelpCircle } from 'lucide-react';
-
 export interface WorkflowNode {
   id: string;
   label: string;
-  type: 'start' | 'end' | 'agent' | 'tool' | 'condition';
-  position: { x: number, y: number };
-  icon?: string;
-  color?: string;
+  type: 'start' | 'end' | 'agent' | 'tool';
+  position: { x: number; y: number };
 }
 
 export interface WorkflowEdge {
   id: string;
   from: string;
   to: string;
+  type: 'solid' | 'dashed';
   label?: string;
-  type?: 'solid' | 'dashed';
 }
 
 export interface WorkflowTemplate {
@@ -30,87 +26,56 @@ export interface WorkflowTemplate {
 
 export const workflowTemplates: WorkflowTemplate[] = [
   {
-    id: 'customer-support',
+    id: 'customer-support-flow',
     name: 'Customer Support Flow',
-    description: 'A flow that routes customer inquiries to appropriate departments',
-    category: 'customer-service',
+    description: 'Workflow for handling customer support queries',
+    category: 'support',
     nodes: [
-      { id: 'start', label: '__start__', type: 'start', position: { x: 350, y: 50 } },
-      { id: 'initial_support', label: 'Frontline Support', type: 'agent', position: { x: 350, y: 150 }, icon: 'support' },
-      { id: 'billing_support', label: 'Billing Support', type: 'agent', position: { x: 550, y: 300 }, icon: 'billing', color: '#f59e0b' },
-      { id: 'technical_support', label: 'Technical Support', type: 'agent', position: { x: 150, y: 300 }, icon: 'technical', color: '#8b5cf6' },
-      { id: 'handle_refund', label: 'Refund Process', type: 'tool', position: { x: 550, y: 450 }, icon: 'refund', color: '#f97316' },
-      { id: 'end', label: '__end__', type: 'end', position: { x: 350, y: 550 } }
+      { id: 'start', label: '__start__', type: 'start', position: { x: 250, y: 50 } },
+      { id: 'router', label: 'Query Router', type: 'agent', position: { x: 250, y: 150 } },
+      { id: 'support', label: 'Support Agent', type: 'agent', position: { x: 100, y: 250 } },
+      { id: 'technical', label: 'Technical Agent', type: 'agent', position: { x: 250, y: 250 } },
+      { id: 'billing', label: 'Billing Agent', type: 'agent', position: { x: 400, y: 250 } },
+      { id: 'knowledge', label: 'Knowledge Base', type: 'tool', position: { x: 250, y: 350 } },
+      { id: 'end', label: '__end__', type: 'end', position: { x: 250, y: 450 } }
     ],
     edges: [
-      { id: 'e1', from: 'start', to: 'initial_support' },
-      { id: 'e2', from: 'initial_support', to: 'billing_support', label: 'Billing Issue', type: 'dashed' },
-      { id: 'e3', from: 'initial_support', to: 'technical_support', label: 'Technical Issue', type: 'dashed' },
-      { id: 'e4', from: 'initial_support', to: 'end', label: 'General Question', type: 'dashed' },
-      { id: 'e5', from: 'billing_support', to: 'handle_refund', label: 'Refund', type: 'dashed' },
-      { id: 'e6', from: 'billing_support', to: 'end', label: 'No Refund', type: 'dashed' },
-      { id: 'e7', from: 'technical_support', to: 'end' },
-      { id: 'e8', from: 'handle_refund', to: 'end' }
+      { id: 'e1', from: 'start', to: 'router', type: 'solid' },
+      { id: 'e2', from: 'router', to: 'support', type: 'solid', label: 'General Support' },
+      { id: 'e3', from: 'router', to: 'technical', type: 'solid', label: 'Technical Issue' },
+      { id: 'e4', from: 'router', to: 'billing', type: 'solid', label: 'Billing Question' },
+      { id: 'e5', from: 'support', to: 'knowledge', type: 'dashed' },
+      { id: 'e6', from: 'technical', to: 'knowledge', type: 'dashed' },
+      { id: 'e7', from: 'billing', to: 'knowledge', type: 'dashed' },
+      { id: 'e8', from: 'knowledge', to: 'end', type: 'solid' }
     ],
-    previewPath: ['start', 'initial_support', 'billing_support', 'handle_refund', 'end']
+    previewPath: ['e1', 'e3', 'e6', 'e8']
   },
   {
-    id: 'security-operations',
-    name: 'Security Operations Center',
-    description: 'A workflow for handling security alerts and incidents',
-    category: 'security',
+    id: 'sales-workflow',
+    name: 'Sales Pipeline Workflow',
+    description: 'Workflow for handling sales inquiries and qualification',
+    category: 'sales',
     nodes: [
-      { id: 'start', label: '__start__', type: 'start', position: { x: 350, y: 50 } },
-      { id: 'alert_triage', label: 'Alert Triage', type: 'agent', position: { x: 350, y: 150 }, icon: 'security', color: '#ef4444' },
-      { id: 'threat_analyzer', label: 'Threat Analysis', type: 'agent', position: { x: 550, y: 250 }, icon: 'search', color: '#6366f1' },
-      { id: 'incident_responder', label: 'Incident Response', type: 'agent', position: { x: 150, y: 250 }, icon: 'security', color: '#ef4444' },
-      { id: 'escalation', label: 'Human Escalation', type: 'tool', position: { x: 150, y: 400 }, icon: 'team', color: '#3b82f6' },
-      { id: 'end', label: '__end__', type: 'end', position: { x: 350, y: 500 } }
+      { id: 'start', label: '__start__', type: 'start', position: { x: 250, y: 50 } },
+      { id: 'qualification', label: 'Lead Qualification', type: 'agent', position: { x: 250, y: 150 } },
+      { id: 'product', label: 'Product Expert', type: 'agent', position: { x: 100, y: 250 } },
+      { id: 'pricing', label: 'Pricing Specialist', type: 'agent', position: { x: 400, y: 250 } },
+      { id: 'crm', label: 'CRM Integration', type: 'tool', position: { x: 250, y: 350 } },
+      { id: 'end', label: '__end__', type: 'end', position: { x: 250, y: 450 } }
     ],
     edges: [
-      { id: 'e1', from: 'start', to: 'alert_triage' },
-      { id: 'e2', from: 'alert_triage', to: 'threat_analyzer', label: 'Need Analysis', type: 'dashed' },
-      { id: 'e3', from: 'alert_triage', to: 'incident_responder', label: 'Critical Alert', type: 'dashed' },
-      { id: 'e4', from: 'alert_triage', to: 'end', label: 'False Positive', type: 'dashed' },
-      { id: 'e5', from: 'threat_analyzer', to: 'incident_responder', label: 'Threat Confirmed', type: 'dashed' },
-      { id: 'e6', from: 'threat_analyzer', to: 'end', label: 'No Threat', type: 'dashed' },
-      { id: 'e7', from: 'incident_responder', to: 'escalation', label: 'Human Required', type: 'dashed' },
-      { id: 'e8', from: 'incident_responder', to: 'end', label: 'Resolved', type: 'dashed' },
-      { id: 'e9', from: 'escalation', to: 'end' }
+      { id: 'e1', from: 'start', to: 'qualification', type: 'solid' },
+      { id: 'e2', from: 'qualification', to: 'product', type: 'solid', label: 'Product Questions' },
+      { id: 'e3', from: 'qualification', to: 'pricing', type: 'solid', label: 'Pricing Questions' },
+      { id: 'e4', from: 'product', to: 'crm', type: 'dashed' },
+      { id: 'e5', from: 'pricing', to: 'crm', type: 'dashed' },
+      { id: 'e6', from: 'crm', to: 'end', type: 'solid' }
     ],
-    previewPath: ['start', 'alert_triage', 'incident_responder', 'escalation', 'end']
-  },
-  {
-    id: 'healthcare-assistant',
-    name: 'Healthcare Assistant',
-    description: 'A medical information and appointment scheduling workflow',
-    category: 'healthcare',
-    nodes: [
-      { id: 'start', label: '__start__', type: 'start', position: { x: 350, y: 50 } },
-      { id: 'initial_triage', label: 'Initial Triage', type: 'agent', position: { x: 350, y: 150 }, icon: 'support', color: '#10b981' },
-      { id: 'symptom_checker', label: 'Symptom Checker', type: 'agent', position: { x: 150, y: 250 }, icon: 'search', color: '#6366f1' },
-      { id: 'appointment_scheduler', label: 'Appointment Scheduling', type: 'agent', position: { x: 550, y: 250 }, icon: 'team', color: '#3b82f6' },
-      { id: 'urgent_care', label: 'Urgent Care', type: 'agent', position: { x: 150, y: 400 }, icon: 'support', color: '#ef4444' },
-      { id: 'knowledge_base', label: 'Medical Knowledge', type: 'tool', position: { x: 350, y: 350 }, icon: 'knowledge', color: '#06b6d4' },
-      { id: 'end', label: '__end__', type: 'end', position: { x: 350, y: 500 } }
-    ],
-    edges: [
-      { id: 'e1', from: 'start', to: 'initial_triage' },
-      { id: 'e2', from: 'initial_triage', to: 'symptom_checker', label: 'Medical Question', type: 'dashed' },
-      { id: 'e3', from: 'initial_triage', to: 'appointment_scheduler', label: 'Schedule Appointment', type: 'dashed' },
-      { id: 'e4', from: 'initial_triage', to: 'end', label: 'General Question', type: 'dashed' },
-      { id: 'e5', from: 'symptom_checker', to: 'knowledge_base', type: 'dashed' },
-      { id: 'e6', from: 'knowledge_base', to: 'symptom_checker', type: 'dashed' },
-      { id: 'e7', from: 'symptom_checker', to: 'urgent_care', label: 'Urgent Symptoms', type: 'dashed' },
-      { id: 'e8', from: 'symptom_checker', to: 'appointment_scheduler', label: 'Need Appointment', type: 'dashed' },
-      { id: 'e9', from: 'symptom_checker', to: 'end', label: 'Advice Provided', type: 'dashed' },
-      { id: 'e10', from: 'appointment_scheduler', to: 'end' },
-      { id: 'e11', from: 'urgent_care', to: 'end' }
-    ],
-    previewPath: ['start', 'initial_triage', 'symptom_checker', 'knowledge_base', 'symptom_checker', 'appointment_scheduler', 'end']
+    previewPath: ['e1', 'e2', 'e4', 'e6']
   }
 ];
 
-export const getWorkflowById = (id: string): WorkflowTemplate | undefined => {
+export const getWorkflowTemplateById = (id: string): WorkflowTemplate | undefined => {
   return workflowTemplates.find(template => template.id === id);
 };
